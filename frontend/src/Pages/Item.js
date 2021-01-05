@@ -33,15 +33,18 @@ class Item extends React.Component{
             itemCreate:{
                 id:null,
                 name:'',
-                cost:0,
-                srp:0,
+                cost:'',
+                srp:'',
 
             },
             page:0,
             rowsPerPage:10,
             query:'',
             columnToQuery: 'ItemName',
-            showModal: false,
+            itemCreateModal: false,
+            posPaymentModal: false,
+            addToPosTable:0,
+            totalPayment:0
 
         }
         this.fetchItem = this.fetchItem.bind(this)
@@ -49,8 +52,10 @@ class Item extends React.Component{
         this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.addToPosTable = this.addToPosTable.bind(this)
-        this.handleOpen = this.handleOpen.bind(this)
-        this.handleClose = this.handleClose.bind(this)
+        this.handleItemCreateOpen = this.handleItemCreateOpen.bind(this)
+        this.handleItemCreateClose = this.handleItemCreateClose.bind(this)
+        this.handlePaymentOpen = this.handlePaymentOpen.bind(this)
+        this.handlePaymentSubmit = this.handlePaymentSubmit.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCreate = this.handleCreate.bind(this)
     }
@@ -107,34 +112,50 @@ class Item extends React.Component{
     }
 
     addToPosTable(i, name, srp){
-        console.log('added item', i, name ,srp)
-        const obj = {'name':name, 'srp':srp, 'qty':i}
+        const obj = {'name':name, 'srp':srp, 'total':srp * i,  'qty':i}
         this.setState({
             posList:[
                 ...this.state.posList,
                 obj,
-            ]
-            
-        })
-        console.log(this.state.posList)
-        
-    }
+            ],
 
-    handleOpen = () =>{
-        this.setState({
-            showModal:true,
+            totalPayment: this.state.totalPayment + obj.total
+            
         })  
     }
 
-    handleClose = () =>{
+    handlePaymentOpen = () => {
+      this.setState({
+        posPaymentModal:true,
+      })
+    }
+
+    handlePaymentClose = () =>{
+      console.log('testing')
+      this.setState({
+        posPaymentModal:false
+      })
+    }
+
+    handlePaymentSubmit = (payment) =>{
+      console.log("testing payment submit", payment)
+    }
+
+
+    handleItemCreateOpen = () =>{
+        this.setState({
+            itemCreateModal:true,
+        })  
+    }
+    handleItemCreateClose = () =>{
         this.setState({
             itemCreate:{
                 id:null,
                 name:'',
-                srp:0,
-                cost:0,
+                srp:'',
+                cost:'',
             },
-            showModal:false,
+            itemCreateModal:false,
         })
     }
 
@@ -167,8 +188,8 @@ class Item extends React.Component{
                 itemCreate:{
                     id:null,
                     name:'',
-                    srp:0,
-                    cost:0,
+                    srp:'',
+                    cost:'',
                 }
             })
         })
@@ -178,10 +199,11 @@ class Item extends React.Component{
 
     render(){
         var items = this.state.itemList
-        console.log(items)
         return(
-        <div className="pos-main-content">
+        <>
         <div className='grid-container'>
+        <div className='grid-item'>
+
         <TableContainer>
 
         <TextField label="Item Search" style={{marginTop:5, marginBottom:5}} className={this.props.toggle ? 'item-search active' : 'item-search' } variant="outlined" value={this.state.value} onChange={e => this.setState({query:e.target.value}) }/>
@@ -205,75 +227,104 @@ class Item extends React.Component{
         </TableBody>
       </Table>
     <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[10, 20]}
         component="div"
         count={items.length}
         rowsPerPage={this.state.rowsPerPage}
         page={this.state.page}
         onChangePage={this.handleChangePage}
         onChangeRowsPerPage={this.handleChangeRowsPerPage}
-      />
-        <Button style={{marginLeft:250}} variant="contained" color="primary" onClick={this.handleOpen}>
-            Create Item
-        </Button>
-        
-        <Dialog open={this.state.showModal} onClose={this.handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Create Item</DialogTitle>
-        <DialogContent >
-          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="name" value={this.state.itemCreate.name} placeholder="Item Name" label="Item Name" type="name" fullWidth variant="standard"/>
-          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="cost" value={this.state.itemCreate.cost}label="Item Cost" type="name" fullWidth variant="standard"/>
-          <TextField autoFocus onChange={(e) => this.handleCreate(e)} margin="normal" id="srp" value={this.state.itemCreate.srp} label="Item SRP" type="srp" fullWidth variant="standard"/>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.handleClose}>Cancel</Button>
-          <Button onClick={this.handleSubmit}>Submit</Button>
-        </DialogActions>
-      </Dialog>
-      </TableContainer>
+        />
 
-    <TableContainer style={{marginTop: 66, maxHeight:'100%'}}>
-      <Table stickyHeader aria-label="sticky table" className='class-table' aria-label="spanning table">
-      <TableHead  style={{backgroundColor:'#139bf7', borderRadius:50, width:50, border:0.5}}>
+        
+
+      </TableContainer>
+        
+        </div>
+
+        <div className='grid-item'>
+
+            <div>
+              
+    <TableContainer >
+      <Table aria-label="spanning table">
+      <TableHead className='class-table'>
           <TableRow>
-            <TableCell>Description</TableCell>
+            <TableCell>Desc.</TableCell>
             <TableCell align="right">Qty.</TableCell>
             <TableCell align="right">Unit</TableCell>
             <TableCell align="right">Sum</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {this.state.posList.reverse().map((row, index) => (
+          {this.state.posList.map((row, index) => (
             <TableRow key={index}>
               <TableCell>{row.name}</TableCell>
               <TableCell align="right">{row.qty}</TableCell>
               <TableCell align="right">{row.srp}</TableCell>
-              <TableCell align="right">{row.srp * row.qty}</TableCell>
+              <TableCell align="right">{row.total}</TableCell>
             </TableRow>
           ))}
 
-          <TableRow stickyHeader>
-            <TableCell rowSpan={3} />
-            <TableCell colSpan={2}>Subtotal</TableCell>
-            <TableCell align="right">0</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell>Discount</TableCell>
-            <TableCell align="right">0</TableCell>
-            <TableCell align="right">0</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell colSpan={2}>Total</TableCell>
-            <TableCell align="right">0</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
+      </TableBody>
+        </Table>
+        </TableContainer>
 
+          </div>
+            
+          </div>        
+          
             </div>
-        </div>
+
+        <Button style={{marginLeft:250}} variant="contained" color="primary" onClick={this.handleItemCreateOpen}>
+          Create Item
+        </Button>
+
+          <div className='pos-item-summary'>
+          <TextField id="payment" type='number' onClick={this.getTotal} label="Total" value={this.state.totalPayment} 
+          InputProps={{readOnly: true,}}
+          variant="outlined"
+        />
+
+          <Button onClick={this.handlePaymentOpen} style={{marginLeft:20, height:150, width:100, backgroundColor:'#3595b5', color:'white', fontSize:25}} variant="contained" size='large'>
+              PAY
+          </Button>
+          </div>
+
+
+
+        <Dialog open={this.state.itemCreateModal} onClose={this.handleItemCreateClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Create Item</DialogTitle>
+        <DialogContent >
+          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="name" value={this.state.itemCreate.name} placeholder="Item Name" label="Item Name" type="name" fullWidth variant="standard"/>
+          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="cost" placeholder='0' value={this.state.itemCreate.cost}label="Item Cost" type="name" fullWidth variant="standard"/>
+          <TextField autoFocus onChange={(e) => this.handleCreate(e)} margin="normal" id="srp" placeholder='0' value={this.state.itemCreate.srp} label="Item SRP" type="srp" fullWidth variant="standard"/>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handleItemCreateClose}>Cancel</Button>
+          <Button onClick={this.handleSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={this.state.posPaymentModal} onClose={this.handlePaymentClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Payment</DialogTitle>
+        <DialogContent >
+        <TextField id="payment" type='number' onClick={this.getTotal} label="Total" value={this.state.totalPayment} 
+          InputProps={{readOnly: true,}}
+          variant="outlined"
+        />  
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={this.handlePaymentClose}>Cancel</Button>
+          <Button onClick={this.handlePaymentSubmit(this.state.totalPayment)}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+
+      
+        </>
         
         )
     }
 }
 
-export default Item
+export default Item 
