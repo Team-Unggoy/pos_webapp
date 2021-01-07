@@ -22,7 +22,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-import orderBy from "lodash/orderBy";
+import MUIDataTable from "mui-datatables";
 
 class Item extends React.Component{
     constructor(props){
@@ -30,6 +30,7 @@ class Item extends React.Component{
         this.state ={
             itemList:[],
             posList:[],
+            filteredData: [],
             itemCreate:{
                 id:null,
                 name:'',
@@ -40,11 +41,14 @@ class Item extends React.Component{
             page:0,
             rowsPerPage:10,
             query:'',
-            columnToQuery: 'ItemName',
+            searchInput:'',
             itemCreateModal: false,
             posPaymentModal: false,
-            addToPosTable:0,
-            totalPayment:0
+            addToPosTable:0, 
+            totalPayment:0,
+            payment:'',
+            change:0,
+            
 
         }
         this.fetchItem = this.fetchItem.bind(this)
@@ -54,7 +58,6 @@ class Item extends React.Component{
         this.addToPosTable = this.addToPosTable.bind(this)
         this.handleItemCreateOpen = this.handleItemCreateOpen.bind(this)
         this.handleItemCreateClose = this.handleItemCreateClose.bind(this)
-        this.handlePaymentOpen = this.handlePaymentOpen.bind(this)
         this.handlePaymentSubmit = this.handlePaymentSubmit.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCreate = this.handleCreate.bind(this)
@@ -91,6 +94,7 @@ class Item extends React.Component{
         }))
     }
 
+
     handleChangePage(event, newPage){
         console.log('testing')
         this.setState({
@@ -124,6 +128,13 @@ class Item extends React.Component{
         })  
     }
 
+    getChange = (event) =>{
+      this.setState({
+        payment:event.target.value,
+        change: event.target.value - this.state.totalPayment 
+      })
+    }
+
     handlePaymentOpen = () => {
       this.setState({
         posPaymentModal:true,
@@ -131,14 +142,15 @@ class Item extends React.Component{
     }
 
     handlePaymentClose = () =>{
-      console.log('testing')
       this.setState({
-        posPaymentModal:false
+        posPaymentModal:false,
+        payment:'',
+        change:''
       })
     }
 
-    handlePaymentSubmit = (payment) =>{
-      console.log("testing payment submit", payment)
+    handlePaymentSubmit = (event) =>{
+      console.log(this.state.posList)
     }
 
 
@@ -198,18 +210,68 @@ class Item extends React.Component{
 
 
     render(){
+      const columns = [
+        {
+          name: 'name',
+          label: 'Item Name',
+          options:{
+            filter: true,
+            sort: true,
+          }
+        },
+        {
+          name: 'srp',
+          label: 'SRP',
+          options:{
+            filter:true,
+            sort:true,
+          }
+        },
+        {
+          name: 'balance',
+          labal: 'Balance',
+
+        },
+          
+      ]
+
+      const options = {
+        filterType: "dropdown",
+        download:false,
+        selectableRows:'none',
+        print:false,
+        rowsPerPage:10,
+        onRowClick: (rowData, rowMeta) => {
+          const obj = {name: rowData[0], srp:rowData[1]}
+          this.setState({
+            posList:[
+              ...this.state.posList,
+              obj,
+            ]
+          })
+        }
+
+
+      }
         var items = this.state.itemList
         return(
         <>
         <div className='grid-container'>
         <div className='grid-item'>
 
-        <TableContainer>
+        <MUIDataTable
+      title={"Item List"}
+      data={items}
+      columns={columns}
+      options={options}
+    />
 
-        <TextField label="Item Search" style={{marginTop:5, marginBottom:5}} className={this.props.toggle ? 'item-search active' : 'item-search' } variant="outlined" value={this.state.value} onChange={e => this.setState({query:e.target.value}) }/>
+        {/* <TableContainer>
+
+        <TextField label="Item Search" style={{marginTop:5, marginBottom:5}} className={this.props.toggle ? 'item-search active' : 'item-search' } variant="outlined" value={this.state.searchInput || ''} onChange={this.handleSearch}/>
             
         <Table aria-label="sticky table">
-        <TableHead style={{backgroundColor:'#139bf7', borderRadius:50, width:50, border:0.5,}}>
+        <TableHead style={{backgroundColor:'#139bf7', borderRadius:50, width:50, border:0.5}}>
           <TableRow >
             <TableCell align="left">Items Name</TableCell>
             <TableCell align="right">Price</TableCell>
@@ -238,7 +300,7 @@ class Item extends React.Component{
 
         
 
-      </TableContainer>
+      </TableContainer> */}
         
         </div>
 
@@ -271,54 +333,44 @@ class Item extends React.Component{
         </TableContainer>
 
           </div>
-            
           </div>        
+          </div>
+          <Button variant="contained" color="primary" onClick={this.handleItemCreateOpen}>
+            Create Item
+          </Button>
+
+            <div className='pos-item-summary'>
+            <Button onClick={this.handlePaymentSubmit} style={{marginLeft:20, height:200, width:120, backgroundColor:'#3595b5', color:'white', fontSize:25}} variant="outlined" size='large'>
+                Submit
+            </Button>
+            </div>
           
+            <div className='pos-item-summary'>
+              <TextField id="totalpayment" type='number' onClick={this.getTotal} label="Total" value={this.state.totalPayment} InputProps={{readOnly: true,}} variant="outlined"/>
+              <br></br>
+              <TextField id='payment' onChange={(e) =>this.getChange(e)} placeholder='0' value={this.state.payment} type='number' margin='normal' label='Enter Amount' variant='outlined'/>
+              <br></br>
+              <TextField id='change' type='number' margin='normal' label='Change' variant='outlined' InputProps={{readOnly:true}} value={this.state.change}/>
             </div>
 
-        <Button style={{marginLeft:250}} variant="contained" color="primary" onClick={this.handleItemCreateOpen}>
-          Create Item
-        </Button>
+            
 
-          <div className='pos-item-summary'>
-          <TextField id="payment" type='number' onClick={this.getTotal} label="Total" value={this.state.totalPayment} 
-          InputProps={{readOnly: true,}}
-          variant="outlined"
-        />
-
-          <Button onClick={this.handlePaymentOpen} style={{marginLeft:20, height:150, width:100, backgroundColor:'#3595b5', color:'white', fontSize:25}} variant="contained" size='large'>
-              PAY
-          </Button>
-          </div>
 
 
 
         <Dialog open={this.state.itemCreateModal} onClose={this.handleItemCreateClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Create Item</DialogTitle>
         <DialogContent >
-          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="name" value={this.state.itemCreate.name} placeholder="Item Name" label="Item Name" type="name" fullWidth variant="standard"/>
-          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="cost" placeholder='0' value={this.state.itemCreate.cost}label="Item Cost" type="name" fullWidth variant="standard"/>
-          <TextField autoFocus onChange={(e) => this.handleCreate(e)} margin="normal" id="srp" placeholder='0' value={this.state.itemCreate.srp} label="Item SRP" type="srp" fullWidth variant="standard"/>
+          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="name" value={this.state.itemCreate.name} placeholder="Item Name" label="Item Name" type="name" fullWidth variant="outlined"/>
+          <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="cost" placeholder='0' value={this.state.itemCreate.cost}label="Item Cost" type="name" fullWidth variant="outlined"/>
+          <TextField autoFocus onChange={(e) => this.handleCreate(e)} margin="normal" id="srp" placeholder='0' value={this.state.itemCreate.srp} label="Item SRP" type="srp" fullWidth variant="outlined"/>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleItemCreateClose}>Cancel</Button>
-          <Button onClick={this.handleSubmit}>Submit</Button>
+          <Button variant='contained'  onClick={this.handleItemCreateClose}>Cancel</Button>
+          <Button variant='contained' color='primary' onClick={this.handleSubmit}>Submit</Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={this.state.posPaymentModal} onClose={this.handlePaymentClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Payment</DialogTitle>
-        <DialogContent >
-        <TextField id="payment" type='number' onClick={this.getTotal} label="Total" value={this.state.totalPayment} 
-          InputProps={{readOnly: true,}}
-          variant="outlined"
-        />  
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.handlePaymentClose}>Cancel</Button>
-          <Button onClick={this.handlePaymentSubmit(this.state.totalPayment)}>Submit</Button>
-        </DialogActions>
-      </Dialog>
 
       
         </>

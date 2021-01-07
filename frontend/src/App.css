@@ -23,24 +23,23 @@
     grid-template-columns: 50% 50%;
     grid-template-rows: 100%;
     padding: 3px;
-    max-height: 800px;  
+    max-height: 700px;  
     height: 90hv;
   }
 
 .grid-item{
     overflow-y: scroll;
-    border: 1px solid rgba(0, 0, 0, 0.8);
-    padding: 3px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+    padding: 0px;
     font-size: 30px;
 
 }
 
 .pos-item-summary{
-    position: absolute;
-    right: 0px;
-    margin: 5px;
-    padding-left: 20px;
-    align-content: right;
+    float: right;
+    margin-right: 5px;
+    margin-top: 10px;
+
     
 }
 
