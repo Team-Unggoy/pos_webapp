@@ -1,28 +1,20 @@
 import React from 'react'
-import DatePicker from 'react-datepicker';
- 
+// import DatePicker from 'react-datepicker';
+import Datepicker from '../Components/Datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import Table from '@material-ui/core/Table';
 import { Table } from 'semantic-ui-react'
-// import TableBody from '@material-ui/core/TableBody';
-// import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import { TableCell, TableContainer, TableRow, TextField } from '@material-ui/core';
+import { TextField } from '@material-ui/core';
 import { Button } from 'semantic-ui-react'
-import { Input } from 'semantic-ui-react'
 
-import { Search, Grid, Header, Segment } from 'semantic-ui-react'
+import { Search } from 'semantic-ui-react'
 import _ from 'lodash'
-import { blue, green } from '@material-ui/core/colors';
 
 
 class Buying extends React.Component{
     constructor(props){
         super(props)
         this.state={
-            startDate:new Date(),
-            startTime:new Date(),
             itemDropDown:[],
             selected:null,
             isLoading:false,
@@ -32,10 +24,8 @@ class Buying extends React.Component{
             
 
         }
-        this.handleDateChange = this.handleDateChange.bind(this)
         this.fetchItem = this.fetchItem.bind(this)
         this.handleSearchChange = this.handleSearchChange.bind(this)
-        this.addToBuyingTable = this.addToBuyingTable.bind(this)
 
 
     }
@@ -109,9 +99,22 @@ class Buying extends React.Component{
         
 
         handleResultSelect = (e, {result}) =>{
-            console.log(this.state.buyingList.length)
-            const obj = {'id':this.state.buyingList.length, 'name': result.title, 'cost':result.price, 'qty':1, 'total':result.price * 1}
-            console.log(obj);
+            // check if item is already in list
+            const itemIndex = this.state.buyingList.findIndex(
+                (item) => item.key === result.key
+              );
+            if(itemIndex !== -1){
+                this.setState(prevState => ({
+                    value:'',
+                    buyingList:prevState.buyingList.map(
+                        
+                        el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * el.cost }: el
+                    )
+                    
+                }))
+            }
+            else{
+            const obj = {'id':this.state.buyingList.length, 'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':result.price * 1}
             this.setState({
                 buyingList:[
                     ...this.state.buyingList,
@@ -124,14 +127,9 @@ class Buying extends React.Component{
             })
             console.log(this.state.buyingList)
         }
-
-        addToBuyingTable = (event, data) => {
-            console.log('testing', data.value)
-            console.log(this.state.selected)
         }
 
         qtyHandle = (event, row, index) => {
-            console.log(event.target.value, row,index, 'testint run here');
             this.setState(prevState => ({
                 buyingList:prevState.buyingList.map(
                     el => el.id === index? { ...el, qty: parseInt(event.target.value), total: parseInt(event.target.value) * el.cost}: el
@@ -154,25 +152,19 @@ class Buying extends React.Component{
             <form className='buying-form'>
             <div className='buying-input'>
 
- 
-
-            <DatePicker
-              className='testing'
-              selected={ this.state.startDate }
-              onChange={ this.handleDateChange }
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={10}
-              timeCaption="time"
-              dateFormat="MM dd, yyyy h:mm aa"
-            />
-
             <div style={{float: 'right'}}>
             <Button primary> Submit</Button>
             <Button secondary> Delete</Button>  
             </div>
 
+ 
+            <Datepicker />
+    
+
+
+
             <Search
+            className='searchbar'
             size='big'
             input={{ icon: 'search', iconPosition: 'left' }}
             loading={this.state.isLoading}
@@ -184,21 +176,22 @@ class Buying extends React.Component{
             value={this.state.value}
           />
 
-          
-                <Table size='large' celled fixed selectable compact>
+            <div className='buying-table'>
+
+                <Table size='large' celled fixed selectable compact inverted>
                     <Table.Header>
                     <Table.Row>
-                        <Table.HeaderCell>Item Name</Table.HeaderCell>
-                        <Table.HeaderCell width={1}>Qty</Table.HeaderCell>
-                        <Table.HeaderCell>Cost</Table.HeaderCell>
-                        <Table.HeaderCell>Total</Table.HeaderCell>
+                        <Table.HeaderCell width={4}>Item Name</Table.HeaderCell>
+                        <Table.HeaderCell width={2}>Qty</Table.HeaderCell>
+                        <Table.HeaderCell width={3}>Cost</Table.HeaderCell>
+                        <Table.HeaderCell width={3}>Total</Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
                         {this.state.buyingList.map((row, index) =>(
                             <Table.Row key={index}>
                                 <Table.Cell>{row.name}</Table.Cell>
-                                <Table.Cell> <TextField type='number' defaultValue={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}}/></Table.Cell>
+                                <Table.Cell className='qtyfield'> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} InputProps={{style: {color: "white"}}}/></Table.Cell>
                                 <Table.Cell>{row.cost}</Table.Cell>
                                 <Table.Cell>{row.total}</Table.Cell>
                             </Table.Row>
@@ -206,29 +199,7 @@ class Buying extends React.Component{
                     </Table.Body>
                 </Table>
 
-{/* 
-            <TableContainer>
-                <Table>
-                    <TableHead>
-                    <TableRow>
-                        <TableCell>Item Name</TableCell>
-                        <TableCell>Quantity</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Total</TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {this.state.buyingList.map((row, index) =>(
-                            <TableRow key={index}>
-                                <TableCell>{row.name}</TableCell>
-                                <TableCell>{row.qty}</TableCell>
-                                <TableCell>{row.cost}</TableCell>
-                                <TableCell>{row.total}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer> */}
+            </div>
             </div>
             
             </form>

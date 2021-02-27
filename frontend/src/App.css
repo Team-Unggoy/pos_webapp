@@ -14,22 +14,39 @@
 }
 
 /* buying css */
+
 .buying-form{
-    height: 100vh;
+    height: 95vh;
     width: 80 vw;
     border-left: 1px solid;
     margin-left:80px;
     
 }
 
-.testing{
-    padding: 18.5px 14px;
-    border: 0;
+.date{
+    margin:5px;
+    border: 1px solid rgb(228, 228, 228);
+    border-radius: 30px;
+    padding: 10px 5px;
 }
+
+.react-datepicker-ignore-onclickoutside{
+    border-style: none;
+    border-radius: 25px;
+}
+
+
 
 .buying-input{
     padding:10px;
 
+}
+
+.buying-table{
+    border: 1px solid rgb(228, 228, 228);
+    overflow-y: scroll;
+    width: 50%;
+    height: 200px;
 }
 
 /* item css */
