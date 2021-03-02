@@ -25,7 +25,7 @@ class Datepicker extends React.Component{
             var day = date.getDate().toString();
             day = day.length > 1 ? day : '0' + day;
             var hour = (date.getHours()).toString();
-            hour = hour.length > 1? hour :  hour;
+            hour = hour.length > 1? hour :  '0' + hour;
             var minute = date.getMinutes().toString()
             minute = minute.length > 1 ?  minute: '0' + minute;
             var second = date.getSeconds().toString();

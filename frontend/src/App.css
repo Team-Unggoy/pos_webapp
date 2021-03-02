@@ -15,6 +15,17 @@
 
 /* buying css */
 
+.detail-container{
+    border: 1px solid rgb(14, 140, 172);
+    border-radius: 10px;
+
+}
+
+.transition{
+    overflow-y: scroll;
+    height: 400px;
+}
+
 .buying-form{
     height: 95vh;
     width: 80 vw;
@@ -42,11 +53,12 @@
 
 }
 
-.buying-table{
+.table-container{
+    margin-top: 10px;
     border: 1px solid rgb(228, 228, 228);
     overflow-y: scroll;
     width: 50%;
-    height: 200px;
+    height: 800px;
 }
 
 /* item css */
