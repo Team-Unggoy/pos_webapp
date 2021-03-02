@@ -4,9 +4,9 @@ import Datepicker from '../Components/Datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Table } from 'semantic-ui-react'
-import { TextField } from '@material-ui/core';
+import { TextField, Checkbox } from '@material-ui/core';
 import { Button } from 'semantic-ui-react'
-
+import DeleteIcon from '@material-ui/icons/Delete';
 import { Search } from 'semantic-ui-react'
 import _ from 'lodash'
 
@@ -21,6 +21,7 @@ class Buying extends React.Component{
             results:[],
             buyingList:[],
             value:'',
+            checked:false,
             
 
         }
@@ -114,7 +115,7 @@ class Buying extends React.Component{
                 }))
             }
             else{
-            const obj = {'id':this.state.buyingList.length, 'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':result.price * 1}
+            const obj = {'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':result.price * 1, isChecked:false}
             this.setState({
                 buyingList:[
                     ...this.state.buyingList,
@@ -132,9 +133,24 @@ class Buying extends React.Component{
         qtyHandle = (event, row, index) => {
             this.setState(prevState => ({
                 buyingList:prevState.buyingList.map(
-                    el => el.id === index? { ...el, qty: parseInt(event.target.value), total: parseInt(event.target.value) * el.cost}: el
+                    el => el.key === row.key? { ...el, qty: parseInt(event.target.value), total: parseInt(event.target.value) * el.cost}: el
                 )
             }))
+        }
+
+        getList = () =>{
+            this.setState({
+                
+
+            })
+        }
+
+        deleteItem = (row,index) =>{
+            var list = [...this.state.buyingList]
+            list.splice(index, 1);
+            this.setState({
+                buyingList:list
+            })
         }
         
 
@@ -142,7 +158,8 @@ class Buying extends React.Component{
 
         
     render(){
-        console.log(this.state.buyingList, 'udpate')
+
+        console.log(this.state.buyingList)
 
         return(
      
@@ -159,9 +176,6 @@ class Buying extends React.Component{
 
  
             <Datepicker />
-    
-
-
 
             <Search
             className='searchbar'
@@ -176,30 +190,35 @@ class Buying extends React.Component{
             value={this.state.value}
           />
 
-            <div className='buying-table'>
+            <div className='table-container'>
 
                 <Table size='large' celled fixed selectable compact inverted>
                     <Table.Header>
                     <Table.Row>
                         <Table.HeaderCell width={4}>Item Name</Table.HeaderCell>
-                        <Table.HeaderCell width={2}>Qty</Table.HeaderCell>
+                        <Table.HeaderCell width={1}>Qty</Table.HeaderCell>
                         <Table.HeaderCell width={3}>Cost</Table.HeaderCell>
                         <Table.HeaderCell width={3}>Total</Table.HeaderCell>
+                        <Table.HeaderCell width={1}></Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
+                        
                         {this.state.buyingList.map((row, index) =>(
                             <Table.Row key={index}>
                                 <Table.Cell>{row.name}</Table.Cell>
-                                <Table.Cell className='qtyfield'> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} InputProps={{style: {color: "white"}}}/></Table.Cell>
+                                <Table.Cell> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} InputProps={{style: {color: "white"}}}/></Table.Cell>
                                 <Table.Cell>{row.cost}</Table.Cell>
                                 <Table.Cell>{row.total}</Table.Cell>
+                                <Table.Cell><DeleteIcon onClick={() => {this.deleteItem(row,index)}}/></Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
                 </Table>
+                
 
             </div>
+            <Button type='button' style={{marginTop: 5}} onClick={this.getList}>Get all Items</Button>
             </div>
             
             </form>
