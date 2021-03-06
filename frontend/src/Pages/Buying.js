@@ -191,25 +191,27 @@ class Buying extends React.Component{
 
         qtyHandle = (event, row, index) => {
             this.setState(prevState => ({
-                buyingList:prevState.buyingList.map(
-                    el => el.key === row.key? { ...el, qty: event.target.value, total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
-                ),
+                buyingForm:{
+                    ...this.state.buyingForm,
+                        buyingList:prevState.buyingForm.buyingList.map(
+                            el => el.key === row.key? { ...el, qty: event.target.value, total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
+                        ),
+                }
+               
             }))
         }
 
-        getList = () =>{
-            this.setState({
-                
-
-            })
-        }
 
         deleteItem = (row,index) =>{
-            var list = [...this.state.buyingList]
+            var list = [...this.state.buyingForm.buyingList]
             list.splice(index, 1);
             this.setState(prevState =>({
-                buyingList:list,
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    buyingList:list,
+                }
             }))
+            console.log(this.state.buyingForm)
         }
 
         handleSupplier = (e) =>{
@@ -231,6 +233,8 @@ class Buying extends React.Component{
         const qty_total = this.state.buyingForm.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
         const list_total = this.state.buyingForm.buyingList.reduce((list_total,list) => list_total + list.total, 0)
         list_total.toFixed(2)
+
+        console.log(this.state.buyingForm)
 
         return(
      
