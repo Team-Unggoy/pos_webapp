@@ -1,6 +1,4 @@
 import React from 'react'
-// import DatePicker from 'react-datepicker';
-import Datepicker from '../Components/Datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Table } from 'semantic-ui-react'
@@ -8,39 +6,30 @@ import { TextField } from '@material-ui/core';
 import { Button } from 'semantic-ui-react'
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Search } from 'semantic-ui-react'
-import { withStyles } from '@material-ui/styles';
+import Grid from '@material-ui/core/Grid';
 import _ from 'lodash'
 
-const styles = theme => ({
-    root: {
-      background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-      border: 0,
-      borderRadius: 3,
-      boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-      color: 'white',
-      height: 48,
-      padding: '0 30px',
-    },
-  });
 
 
 class Buying extends React.Component{
     constructor(props){
         super(props)
         this.state={
-            itemDropDown:[],
-            selected:null,
-            isLoading:false,
-            results:[],
+            buyingForm:{
+                id:null,
+            },
+            docStatus:0,
+            datetimefield: new Date(),
+            supplier:'',
             buyingList:[],
             value:'',
-            total:0,
-            grandTotal:0,
-            total_qty:0,
-            status:false,
+            itemDropDown:[],
+            isLoading:false,
+            results:[],
         }
         
         this.fetchItem = this.fetchItem.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
         this.handleSearchChange = this.handleSearchChange.bind(this)
 
 
@@ -66,6 +55,36 @@ class Buying extends React.Component{
             this.fetchItem()
         }
 
+        componentDidMount(){
+            this.formatDate(this.state.datetimefield)
+        }
+
+        formatDate = (date) =>{
+            var year = date.getFullYear();
+            var month = (1 + date.getMonth()).toString();
+            month = month.length > 1 ? month : '0' + month;
+        
+    
+            var day = date.getDate().toString();
+            day = day.length > 1 ? day : '0' + day;
+            var hour = (date.getHours()).toString();
+            hour = hour.length > 1? hour :  '0' + hour;
+            var minute = date.getMinutes().toString()
+            minute = minute.length > 1 ?  minute: '0' + minute;
+            var second = date.getSeconds().toString();
+            second = second.length > 1 ?  second: '0' + second;
+            this.setState({
+                datetimefield:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+            })
+        }
+
+        handleDateChange = (event) =>{
+    
+            this.setState({
+                datetimefield: event.target.value
+            })
+        }
+
         fetchItem(){
             var url = 'http://127.0.0.1:8000/api/item-list/'
 
@@ -75,12 +94,37 @@ class Buying extends React.Component{
                 itemDropDown:data
             }))
         }
+
+        handleSubmit = (e) =>{
+            e.preventDefault()
+            var obj = {'posting_date_time':this.state.datetimefield, 'status':this.state.docStatus, 'buyingList':this.state.buyingList }
+            this.setState({
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    obj,
+                }
+            })
+            console.log(this.state.buyingForm)
+            var csrftoken = this.getCookie('csrftoken')
+            var url = 'http://127.0.0.1:8000/api/purchase-order-create/'
+            fetch(url,{
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+
+                },
+                'body' :JSON.stringify(this.state)
+            }).then((response) => {
+                console.log('tseting ko here')
+            })
+        }
     
     
         handleDateChange(date){
             console.log(date)
             this.setState({
-                startDate:date
+                datetimefield:date
             })
         }
 
@@ -120,22 +164,19 @@ class Buying extends React.Component{
                 (item) => item.key === result.key
               );
             if(itemIndex !== -1){
-                console.log('ga dagan man ko diri diba?')
                 this.setState(prevState => ({
                     value:'',
                     buyingList:prevState.buyingList.map(
                         
-                        el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * el.cost }: el
+                        el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
                     ),
-                    total:parseFloat(prevState.total) + parseFloat(result.price),
                     
                     
                     
                 }))
             }
             else{
-                console.log(result.total)
-            const obj = {'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':result.price * 1,}
+            const obj = {'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':parseFloat(result.price).toFixed(2) * 1,}
             this.setState(prevState =>({
                 buyingList:[
                     ...this.state.buyingList,
@@ -143,7 +184,6 @@ class Buying extends React.Component{
                     
 
                 ],
-                total:parseFloat(prevState.total) + parseFloat(result.price),
                 value:'',
 
                 
@@ -157,7 +197,6 @@ class Buying extends React.Component{
                 buyingList:prevState.buyingList.map(
                     el => el.key === row.key? { ...el, qty: event.target.value, total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
                 ),
-                total: prevState.total + 1,
             }))
         }
 
@@ -174,8 +213,13 @@ class Buying extends React.Component{
             list.splice(index, 1);
             this.setState(prevState =>({
                 buyingList:list,
-                total: parseFloat(prevState.total).toFixed(2) - parseFloat(row.total).toFixed(2),
             }))
+        }
+
+        handleSupplier = (e) =>{
+            this.setState({
+                supplier:e.target.value
+            })
         }
         
 
@@ -184,7 +228,11 @@ class Buying extends React.Component{
         
     render(){
         const { classes } = this.props;
-        console.log(this.state.buyingList)
+        const qty_total = this.state.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
+        console.log(qty_total)
+        const list_total = this.state.buyingList.reduce((list_total,list) => list_total + list.total, 0)
+        list_total.toFixed(2)
+        console.log(this.state)
 
         return(
      
@@ -193,7 +241,7 @@ class Buying extends React.Component{
            
 
             <div style={{float: 'right', margin:5}}>
-            <Button type='button' primary> Submit</Button>
+            <Button type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
             <Button type='button' secondary> Delete</Button>  
             </div>
 
@@ -201,7 +249,7 @@ class Buying extends React.Component{
           
             <div className='buying-input'>
  
-            <Datepicker />
+            
 
             <Search
             className='searchbar'
@@ -248,8 +296,32 @@ class Buying extends React.Component{
             </div>
             
             <div className='table-info' style={{backgroundColor:'#D6D6D6'}}>
-                <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Purchase Order Summary</h1>
-                <TextField label='TOTAL' fullWidth variant='outlined' value={this.state.total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
+            <div className='table-info-grid'>
+            <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Information</h1>
+            <Grid container spacing={3}>
+                <Grid item>
+                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.datetimefield}></TextField>
+                </Grid>
+                <Grid item>
+                    <TextField label='SUPPLIER' variant='outlined' onChange={this.handleSupplier} value={this.state.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                </Grid>
+                <Grid item>
+                    <TextField label='STATUS' variant='outlined' value={this.state.docStatus} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                </Grid>
+            </Grid>
+            </div>
+            <div className='table-info-grid'>
+            <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Summary</h1>
+            <Grid container spacing={3}>
+                <Grid item>
+                    <TextField label='GRAND TOTAL'  variant='outlined' value={list_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                </Grid>
+
+                <Grid item>
+                    <TextField label='TOTAL QUANTITY' variant='outlined' value={qty_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
+                </Grid>
+            </Grid>
+            </div>
             </div>
 
             </form>
