@@ -16,12 +16,11 @@ class Buying extends React.Component{
         super(props)
         this.state={
             buyingForm:{
-                id:null,
+                datetimefield: new Date(),
+                docStatus:'Draft',
+                supplier:'',
+                buyingList:[],
             },
-            docStatus:0,
-            datetimefield: new Date(),
-            supplier:'',
-            buyingList:[],
             value:'',
             itemDropDown:[],
             isLoading:false,
@@ -56,7 +55,7 @@ class Buying extends React.Component{
         }
 
         componentDidMount(){
-            this.formatDate(this.state.datetimefield)
+            this.formatDate(this.state.buyingForm.datetimefield)
         }
 
         formatDate = (date) =>{
@@ -74,14 +73,21 @@ class Buying extends React.Component{
             var second = date.getSeconds().toString();
             second = second.length > 1 ?  second: '0' + second;
             this.setState({
-                datetimefield:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    datetimefield:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+                }
+                
             })
         }
 
         handleDateChange = (event) =>{
     
             this.setState({
+                buyingForm:{...this.state.buyingForm,
                 datetimefield: event.target.value
+            }
+                
             })
         }
 
@@ -97,16 +103,8 @@ class Buying extends React.Component{
 
         handleSubmit = (e) =>{
             e.preventDefault()
-            var obj = {'posting_date_time':this.state.datetimefield, 'status':this.state.docStatus, 'buyingList':this.state.buyingList }
-            this.setState({
-                buyingForm:{
-                    ...this.state.buyingForm,
-                    obj,
-                }
-            })
-            console.log(this.state.buyingForm)
             var csrftoken = this.getCookie('csrftoken')
-            var url = 'http://127.0.0.1:8000/api/purchase-order-create/'
+            var url = 'http://127.0.0.1:8000/api/purchaseorder-create/'
             fetch(url,{
                 method: 'POST',
                 headers: {
@@ -114,7 +112,7 @@ class Buying extends React.Component{
                     'X-CSRFToken': csrftoken,
 
                 },
-                'body' :JSON.stringify(this.state)
+                'body' :JSON.stringify(this.state.buyingForm)
             }).then((response) => {
                 console.log('tseting ko here')
             })
@@ -122,7 +120,6 @@ class Buying extends React.Component{
     
     
         handleDateChange(date){
-            console.log(date)
             this.setState({
                 datetimefield:date
             })
@@ -160,7 +157,7 @@ class Buying extends React.Component{
 
         handleResultSelect = (e, {result}) =>{
             // check if item is already in list
-            const itemIndex = this.state.buyingList.findIndex(
+            const itemIndex = this.state.buyingForm.buyingList.findIndex(
                 (item) => item.key === result.key
               );
             if(itemIndex !== -1){
@@ -177,18 +174,18 @@ class Buying extends React.Component{
             }
             else{
             const obj = {'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':parseFloat(result.price).toFixed(2) * 1,}
-            this.setState(prevState =>({
-                buyingList:[
-                    ...this.state.buyingList,
-                    obj,
-                    
-
-                ],
+            this.setState(() =>({
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    buyingList:[
+                        ...this.state.buyingForm.buyingList,
+                        obj,
+                    ],
+                },
                 value:'',
 
                 
             }))
-            console.log(this.state.buyingList)
         }
         }
 
@@ -208,7 +205,6 @@ class Buying extends React.Component{
         }
 
         deleteItem = (row,index) =>{
-            console.log(row.total)
             var list = [...this.state.buyingList]
             list.splice(index, 1);
             this.setState(prevState =>({
@@ -218,7 +214,11 @@ class Buying extends React.Component{
 
         handleSupplier = (e) =>{
             this.setState({
-                supplier:e.target.value
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    supplier:e.target.value
+                }
+                
             })
         }
         
@@ -228,11 +228,9 @@ class Buying extends React.Component{
         
     render(){
         const { classes } = this.props;
-        const qty_total = this.state.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
-        console.log(qty_total)
-        const list_total = this.state.buyingList.reduce((list_total,list) => list_total + list.total, 0)
+        const qty_total = this.state.buyingForm.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
+        const list_total = this.state.buyingForm.buyingList.reduce((list_total,list) => list_total + list.total, 0)
         list_total.toFixed(2)
-        console.log(this.state)
 
         return(
      
@@ -278,7 +276,7 @@ class Buying extends React.Component{
                     </Table.Header>
                     <Table.Body>
                         
-                        {this.state.buyingList.map((row, index) =>(
+                        {this.state.buyingForm.buyingList.map((row, index) =>(
                             <Table.Row key={index}>
                                 <Table.Cell>{row.name}</Table.Cell>
                                 <Table.Cell> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} /></Table.Cell>
@@ -300,13 +298,13 @@ class Buying extends React.Component{
             <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Information</h1>
             <Grid container spacing={3}>
                 <Grid item>
-                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.datetimefield}></TextField>
+                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.datetimefield}></TextField>
                 </Grid>
                 <Grid item>
-                    <TextField label='SUPPLIER' variant='outlined' onChange={this.handleSupplier} value={this.state.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='SUPPLIER' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
                 <Grid item>
-                    <TextField label='STATUS' variant='outlined' value={this.state.docStatus} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='STATUS' variant='outlined' value={this.state.buyingForm.docStatus} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
             </Grid>
             </div>

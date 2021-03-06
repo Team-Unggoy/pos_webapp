@@ -5,18 +5,13 @@ from django.utils.datetime_safe import datetime
 
 class PurchaseOrder(models.Model):
 
-    status_choice = [
-        ('draft', 'Draft'),
-        ('complete', 'Complete'),
-        ('cancelled', 'Cancelled'),
-    ]
 
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    posting_date = models.DateField(blank=True)
-    posting_time = models.TimeField(blank=True)
+    posting_datetime = models.DateTimeField(blank=True)
+
     order_number = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=10,choices=status_choice, default='draft')
+    status = models.CharField(max_length=10, default=None)
     total = models.DecimalField(decimal_places=2, max_digits=10)
     
 class Item(models.Model):
