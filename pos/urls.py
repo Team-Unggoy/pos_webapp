@@ -8,4 +8,6 @@ urlpatterns = [
     path('item-create/', views.ItemCreate, name='item-create'),
     path('item-udpate/<str:pk>', views.ItemUpdate, name='item-update'),
     path('item-delete/', views.ItemDelete, name='item-delete'),
+
+    path('purchaseorder-create/', views.PurchaseOrderCreate, name='purchaseorder-create'),
 ]
