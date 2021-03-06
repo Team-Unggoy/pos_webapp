@@ -163,13 +163,13 @@ class Buying extends React.Component{
             if(itemIndex !== -1){
                 this.setState(prevState => ({
                     value:'',
-                    buyingList:prevState.buyingList.map(
+                    buyingForm:{
+                        ...this.state.buyingForm,
+                        buyingList:prevState.buyingForm.buyingList.map(
                         
-                        el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
-                    ),
-                    
-                    
-                    
+                            el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
+                        ),
+                    },    
                 }))
             }
             else{
