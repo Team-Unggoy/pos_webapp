@@ -63,8 +63,9 @@ def ItemDelete(request,pk):
 def PurchaseOrderCreate(request):
     serializer = PurchaseOrderSerializer(data=request.data)
     print(serializer)
+    print(serializer.is_valid())
     if serializer.is_valid():
-        print('Is valid')
+        print('Testing babantoto validity')
     
     return Response(serializer.data)
 

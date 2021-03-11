@@ -8,11 +8,19 @@ class PurchaseOrder(models.Model):
 
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    posting_datetime = models.DateTimeField(blank=True)
-
+    # posting_datetime = models.DateTimeField(blank=True)
     order_number = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=10, default=None)
+    supplier = models.CharField(max_length=100, blank=True, default=None)
+    status = models.CharField(max_length=100, default=None)
     total = models.DecimalField(decimal_places=2, max_digits=10)
+
+class PurchaseOrderItem(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
+    modifeid= models.DateTimeField(auto_now=True)
+    order_number = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    qty = models.PositiveIntegerField(default=1)
+    cost = models.DecimalField(decimal_places=2, max_digits=10, default=None)
     
 class Item(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
@@ -29,13 +37,7 @@ class Item(models.Model):
     def __str__(self):
         return(self.name)
 
-class PurchaseOrderItem(models.Model):
-    creation = models.DateTimeField(auto_now_add=True)
-    modifeid= models.DateTimeField(auto_now=True)
-    order_number = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
-    sku = models.ForeignKey(Item, max_length=100, on_delete=models.CASCADE)
-    qty = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(decimal_places=2, max_digits=10)
+
 
     
 class Order(models.Model):

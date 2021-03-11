@@ -16,8 +16,8 @@ class Buying extends React.Component{
         super(props)
         this.state={
             buyingForm:{
-                datetimefield: new Date(),
-                docStatus:'Draft',
+                posting_datetime: new Date(),
+                status:'Draft',
                 supplier:'',
                 buyingList:[],
             },
@@ -55,7 +55,7 @@ class Buying extends React.Component{
         }
 
         componentDidMount(){
-            this.formatDate(this.state.buyingForm.datetimefield)
+            this.formatDate(this.state.buyingForm.posting_datetime)
         }
 
         formatDate = (date) =>{
@@ -75,7 +75,7 @@ class Buying extends React.Component{
             this.setState({
                 buyingForm:{
                     ...this.state.buyingForm,
-                    datetimefield:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+                    posting_datetime:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
                 }
                 
             })
@@ -85,7 +85,7 @@ class Buying extends React.Component{
     
             this.setState({
                 buyingForm:{...this.state.buyingForm,
-                datetimefield: event.target.value
+                    posting_datetime: event.target.value
             }
                 
             })
@@ -105,6 +105,7 @@ class Buying extends React.Component{
             e.preventDefault()
             var csrftoken = this.getCookie('csrftoken')
             var url = 'http://127.0.0.1:8000/api/purchaseorder-create/'
+            console.log(this.state.buyingForm);
             fetch(url,{
                 method: 'POST',
                 headers: {
@@ -114,14 +115,15 @@ class Buying extends React.Component{
                 },
                 'body' :JSON.stringify(this.state.buyingForm)
             }).then((response) => {
-                console.log('tseting ko here')
+                // enter reponse here
+                
             })
         }
     
     
         handleDateChange(date){
             this.setState({
-                datetimefield:date
+                posting_datetime:date
             })
         }
 
@@ -159,6 +161,7 @@ class Buying extends React.Component{
             // check if item is already in list
             const itemIndex = this.state.buyingForm.buyingList.findIndex(
                 (item) => item.key === result.key
+                
               );
             if(itemIndex !== -1){
                 this.setState(prevState => ({
@@ -167,13 +170,14 @@ class Buying extends React.Component{
                         ...this.state.buyingForm,
                         buyingList:prevState.buyingForm.buyingList.map(
                         
-                            el => el.key === result.key? { value:'', ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
+                            el => el.key === result.key? { ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
                         ),
                     },    
                 }))
             }
             else{
-            const obj = {'key':result.key, 'name': result.title, 'cost':result.price, 'qty':1, 'total':parseFloat(result.price).toFixed(2) * 1,}
+            const obj = {'key':result.key, 'name': result.title, 'cost':parseFloat(result.price).toFixed(2), 'qty':1, 'total':parseFloat(result.price).toFixed(2) * 1}
+
             this.setState(() =>({
                 buyingForm:{
                     ...this.state.buyingForm,
@@ -211,7 +215,6 @@ class Buying extends React.Component{
                     buyingList:list,
                 }
             }))
-            console.log(this.state.buyingForm)
         }
 
         handleSupplier = (e) =>{
@@ -233,8 +236,6 @@ class Buying extends React.Component{
         const qty_total = this.state.buyingForm.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
         const list_total = this.state.buyingForm.buyingList.reduce((list_total,list) => list_total + list.total, 0)
         list_total.toFixed(2)
-
-        console.log(this.state.buyingForm)
 
         return(
      
@@ -302,13 +303,13 @@ class Buying extends React.Component{
             <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Information</h1>
             <Grid container spacing={3}>
                 <Grid item>
-                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.datetimefield}></TextField>
+                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
                 </Grid>
                 <Grid item>
                     <TextField label='SUPPLIER' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
                 <Grid item>
-                    <TextField label='STATUS' variant='outlined' value={this.state.buyingForm.docStatus} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='STATUS' variant='outlined' value={this.state.buyingForm.status} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
             </Grid>
             </div>

@@ -25,7 +25,6 @@ class Item extends React.Component{
             posList:[],
             filteredData: [],
             itemCreate:{
-                id:null,
                 name:'',
                 cost:'',
                 srp:'',
