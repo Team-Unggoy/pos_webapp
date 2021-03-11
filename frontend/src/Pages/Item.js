@@ -25,6 +25,7 @@ class Item extends React.Component{
             posList:[],
             filteredData: [],
             itemCreate:{
+                posting_datetime: new Date(),
                 name:'',
                 cost:'',
                 srp:'',
@@ -74,6 +75,33 @@ class Item extends React.Component{
     componentWillMount(){
         this.fetchItem()
     }
+
+    componentDidMount(){
+      this.formatDate(this.state.itemCreate.posting_datetime)
+    }
+    
+    formatDate = (date) =>{
+      var year = date.getFullYear();
+      var month = (1 + date.getMonth()).toString();
+      month = month.length > 1 ? month : '0' + month;
+  
+
+      var day = date.getDate().toString();
+      day = day.length > 1 ? day : '0' + day;
+      var hour = (date.getHours()).toString();
+      hour = hour.length > 1? hour :  '0' + hour;
+      var minute = date.getMinutes().toString()
+      minute = minute.length > 1 ?  minute: '0' + minute;
+      var second = date.getSeconds().toString();
+      second = second.length > 1 ?  second: '0' + second;
+      this.setState({
+          itemCreate:{
+              ...this.state.itemCreate,
+              posting_datetime:year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+          }
+          
+      })
+  }
 
     fetchItem(){
         console.log('fetching...')
@@ -177,6 +205,7 @@ class Item extends React.Component{
 
     handleSubmit(e){
         e.preventDefault()
+        console.log(this.state.itemCreate)
         var csrftoken = this.getCookie('csrftoken')
         var url = 'http://127.0.0.1:8000/api/item-create/'
         fetch(url,{
@@ -190,7 +219,7 @@ class Item extends React.Component{
             this.fetchItem()
             this.setState({
                 itemCreate:{
-                    id:null,
+                    posting_datetime: new Date(),
                     name:'',
                     srp:'',
                     cost:'',
@@ -319,6 +348,7 @@ class Item extends React.Component{
         <Dialog open={this.state.itemCreateModal} onClose={this.handleItemCreateClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Create Item</DialogTitle>
         <DialogContent >
+          <TextField disabled label="DATE" variant='outlined' className='date' type='datetime-local' fullWidth value={this.state.itemCreate.posting_datetime}></TextField>          
           <TextField autoFocus onChange={(e) =>this.handleCreate(e)} margin="normal" id="name" value={this.state.itemCreate.name} placeholder="Item Name" label="Item Name" type="name" fullWidth variant="outlined"/>
           <TextField onChange={(e) =>this.handleCreate(e)} margin="normal" id="cost" placeholder='0' value={this.state.itemCreate.cost}label="Item Cost" type="name" fullWidth variant="outlined"/>
           <TextField onChange={(e) => this.handleCreate(e)} margin="normal" id="srp" placeholder='0' value={this.state.itemCreate.srp} label="Item SRP" type="srp" fullWidth variant="outlined"/>

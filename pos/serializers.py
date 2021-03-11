@@ -4,22 +4,25 @@ from .models import Item, PurchaseOrder, PurchaseOrderItem
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ['name', 'cost', 'srp']
+        fields = ['name', 'cost', 'srp', 'posting_datetime']
 
-class PurchaseOrderItemSerializers(serializers.ModelSerializer):
+class PurchaseOrderItemSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = PurchaseOrderItem
-        fields = ['name', 'qty', 'cost']
+        fields = '__all__'
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
-    purchaseorderitems = PurchaseOrderItemSerializers(many=True)
+    items = PurchaseOrderItemSerializer(many=True)
     class Meta:
         model = PurchaseOrder
-        fields = ['status', 'supplier', 'purchaseorderitems']
+        fields = ['posting_datetime', 'supplier', 'status', 'items']
 
     def create(self, validated_data):
-        print(validated_data)
-        print('def creat12312e')
+        items = validated_data.pop('items')
+        items = PurchaseOrder.objects.create(**validated_data)
+        return items
+
 
 
 

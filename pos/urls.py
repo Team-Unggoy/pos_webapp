@@ -10,4 +10,5 @@ urlpatterns = [
     path('item-delete/', views.ItemDelete, name='item-delete'),
 
     path('purchaseorder-create/', views.PurchaseOrderCreate, name='purchaseorder-create'),
+    path('purchaseorder-list/', views.purchaseOrderList, name='purchaseorder-list'),
 ]

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Item
+from .models import Item, PurchaseOrder, PurchaseOrderItem
 from .serializers import ItemSerializer, PurchaseOrderSerializer
 
 # Create your views here.
@@ -69,4 +69,9 @@ def PurchaseOrderCreate(request):
     
     return Response(serializer.data)
 
+@api_view(['GET'])
+def purchaseOrderList(request):
+    purchaseorders = PurchaseOrder.objects.all()
+    serializer = PurchaseOrderSerializer(purchaseorders, many=True)
+    return Response(serializer.data)
 

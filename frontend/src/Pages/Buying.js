@@ -19,7 +19,7 @@ class Buying extends React.Component{
                 posting_datetime: new Date(),
                 status:'Draft',
                 supplier:'',
-                buyingList:[],
+                items:[],
             },
             value:'',
             itemDropDown:[],
@@ -159,7 +159,7 @@ class Buying extends React.Component{
 
         handleResultSelect = (e, {result}) =>{
             // check if item is already in list
-            const itemIndex = this.state.buyingForm.buyingList.findIndex(
+            const itemIndex = this.state.buyingForm.items.findIndex(
                 (item) => item.key === result.key
                 
               );
@@ -168,7 +168,7 @@ class Buying extends React.Component{
                     value:'',
                     buyingForm:{
                         ...this.state.buyingForm,
-                        buyingList:prevState.buyingForm.buyingList.map(
+                        items:prevState.buyingForm.items.map(
                         
                             el => el.key === result.key? { ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
                         ),
@@ -181,8 +181,8 @@ class Buying extends React.Component{
             this.setState(() =>({
                 buyingForm:{
                     ...this.state.buyingForm,
-                    buyingList:[
-                        ...this.state.buyingForm.buyingList,
+                    items:[
+                        ...this.state.buyingForm.items,
                         obj,
                     ],
                 },
@@ -197,7 +197,7 @@ class Buying extends React.Component{
             this.setState(prevState => ({
                 buyingForm:{
                     ...this.state.buyingForm,
-                        buyingList:prevState.buyingForm.buyingList.map(
+                    items:prevState.buyingForm.items.map(
                             el => el.key === row.key? { ...el, qty: event.target.value, total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
                         ),
                 }
@@ -207,12 +207,12 @@ class Buying extends React.Component{
 
 
         deleteItem = (row,index) =>{
-            var list = [...this.state.buyingForm.buyingList]
+            var list = [...this.state.buyingForm.items]
             list.splice(index, 1);
             this.setState(prevState =>({
                 buyingForm:{
                     ...this.state.buyingForm,
-                    buyingList:list,
+                    items:list,
                 }
             }))
         }
@@ -233,8 +233,8 @@ class Buying extends React.Component{
         
     render(){
         const { classes } = this.props;
-        const qty_total = this.state.buyingForm.buyingList.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
-        const list_total = this.state.buyingForm.buyingList.reduce((list_total,list) => list_total + list.total, 0)
+        const qty_total = this.state.buyingForm.items.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
+        const list_total = this.state.buyingForm.items.reduce((list_total,list) => list_total + list.total, 0)
         list_total.toFixed(2)
 
         return(
@@ -274,14 +274,14 @@ class Buying extends React.Component{
                     <Table.Row>
                         <Table.HeaderCell width={4}>Item Name</Table.HeaderCell>
                         <Table.HeaderCell width={1}>Qty</Table.HeaderCell>
-                        <Table.HeaderCell width={2}>Cost</Table.HeaderCell>
+                        <Table.HeaderCell width={2}>Rate</Table.HeaderCell>
                         <Table.HeaderCell width={2}>Total</Table.HeaderCell>
                         <Table.HeaderCell width={1}></Table.HeaderCell>
                     </Table.Row>
                     </Table.Header>
                     <Table.Body>
                         
-                        {this.state.buyingForm.buyingList.map((row, index) =>(
+                        {this.state.buyingForm.items.map((row, index) =>(
                             <Table.Row key={index}>
                                 <Table.Cell>{row.name}</Table.Cell>
                                 <Table.Cell> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} /></Table.Cell>
