@@ -18,6 +18,9 @@ class PurchaseOrderItem(models.Model):
     name = models.CharField(max_length=100)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+
+    def __str__(self):
+        return(self.name)
     
 class Item(models.Model):
     creation = models.DateTimeField(auto_now_add=True)

@@ -65,7 +65,7 @@ def PurchaseOrderCreate(request):
     print(serializer)
     print(serializer.is_valid())
     if serializer.is_valid():
-        print('Testing babantoto validity')
+        serializer.save()
     
     return Response(serializer.data)
 
