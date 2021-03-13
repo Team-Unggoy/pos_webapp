@@ -58,6 +58,18 @@ class Buying extends React.Component{
             this.formatDate(this.state.buyingForm.posting_datetime)
         }
 
+        initializeForm(){
+            this.setState({
+                ...this.state.buyingForm,
+                buyingForm:{
+                    posting_datetime: new Date(),
+                    status:'Draft',
+                    supplier:'',
+                    items:[],
+                },
+            })
+        }
+
         formatDate = (date) =>{
             var year = date.getFullYear();
             var month = (1 + date.getMonth()).toString();
@@ -115,8 +127,18 @@ class Buying extends React.Component{
                 },
                 'body' :JSON.stringify(this.state.buyingForm)
             }).then((response) => {
-                // enter reponse here
-                
+                this.setState({
+                    buyingForm:{
+                        ...this.state.buyingForm,
+                        posting_datetime:'',
+                        status:'Draft',
+                        supplier:'',
+                        items:[],
+                    }
+                })
+                var sumbitDate = new Date()
+                this.formatDate(sumbitDate)
+
             })
         }
     
@@ -170,7 +192,7 @@ class Buying extends React.Component{
                         ...this.state.buyingForm,
                         items:prevState.buyingForm.items.map(
                         
-                            el => el.key === result.key? { ...el, qty:el.qty +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
+                            el => el.key === result.key? { ...el, qty:parseInt(el.qty) +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
                         ),
                     },    
                 }))
@@ -198,7 +220,7 @@ class Buying extends React.Component{
                 buyingForm:{
                     ...this.state.buyingForm,
                     items:prevState.buyingForm.items.map(
-                            el => el.key === row.key? { ...el, qty: event.target.value, total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
+                            el => el.key === row.key? { ...el, qty: parseInt(event.target.value), total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
                         ),
                 }
                
@@ -244,8 +266,10 @@ class Buying extends React.Component{
            
 
             <div style={{float: 'right', margin:5}}>
-            <Button type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            <Button type='button' secondary> Delete</Button>  
+            {this.state.buyingForm.items.length > 0 ? (
+                <Button type='button' basic color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+            ):<Button disabled basic color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+            }
             </div>
 
             <form className='buying-form'>
@@ -306,10 +330,10 @@ class Buying extends React.Component{
                     <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
                 </Grid>
                 <Grid item>
-                    <TextField label='SUPPLIER' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='SUPPLIER' placeholder='Supplier' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
                 <Grid item>
-                    <TextField label='STATUS' variant='outlined' value={this.state.buyingForm.status} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='STATUS' disabled variant='outlined' value={this.state.buyingForm.status} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
             </Grid>
             </div>
