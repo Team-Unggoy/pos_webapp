@@ -7,18 +7,30 @@ import StoreIcon from '@material-ui/icons/Store';
 export const SidebarData = [
     {
         icon: <HomeIcon />,
-        link:'/home',
+        text: 'Home',
+        path:'/home',
+        actions:[
+            {
+                text:'Create',
+            },
+            {
+                text:'List',
+            },
+        ]
     },
     {
         icon:<StoreIcon />,
-        link:'/buying',
+        text: 'Buying',
+        path:'/buying',
     },
     {
         icon: <ListIcon />,
-        link: '/item',
+        text: 'List',
+        path: '/item',
     },
     {
         icon: <InfoIcon />,
-        link: '/about',
+        text: 'About',
+        path: '/about',
     },
 ]
