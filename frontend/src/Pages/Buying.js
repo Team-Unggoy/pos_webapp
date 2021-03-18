@@ -1,15 +1,47 @@
 import React from 'react'
-import "react-datepicker/dist/react-datepicker.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Table } from 'semantic-ui-react'
-import { TextField } from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { Button } from 'semantic-ui-react'
 import DeleteIcon from '@material-ui/icons/Delete';
 import { Search } from 'semantic-ui-react'
 import Grid from '@material-ui/core/Grid';
 import _ from 'lodash'
+import { withStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import Paper from '@material-ui/core/Paper'
+import TextField from '@material-ui/core/TextField';
+import { Typography } from '@material-ui/core';
 
+const styles = theme => ({
+    root: {
+        flexGrow: 1,
+      },
 
+    search:{
+        margin:15
+    },
+    paper: {
+        padding:5,
+        textAlign: 'center',
+        backgroundColor:'#D6D6D6'
+      },
+    form:{
+        height:700,
+        margin:5,
+        marginLeft:30,
+        backgroundColor:'#D6D6D6',
+        border:'1px solid black',
+        padding:5
+    },
+    table:{
+        
+        minHeight:700
+    },
+  });
 
 class Buying extends React.Component{
     constructor(props){
@@ -263,20 +295,12 @@ class Buying extends React.Component{
      
             <>
             
-           
-
-            <div style={{float: 'right', margin:5}}>
-            {this.state.buyingForm.items.length > 0 ? (
-                <Button type='button' basic color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            ):<Button disabled basic color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            }
-            </div>
-
-            <form className='buying-form'>
-          
-            <div className='buying-input'>
- 
             
+       
+
+            <div className={classes.root}>
+            <Grid className={classes.search}>
+            <TextField style={{marginBottom:10}} label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
 
             <Search
             className='searchbar'
@@ -285,50 +309,53 @@ class Buying extends React.Component{
             loading={this.state.isLoading}
             onResultSelect={this.handleResultSelect}
             onSearchChange={_.debounce(this.handleSearchChange, 500, {
-              leading: true,
+                leading: true,
             })}
             results={this.state.results}
             value={this.state.value}
-          />
+            />
 
-            <div className='table-container'>
+            </Grid>
+            <Grid container spacing={2}>
+            <Grid item xs={6}>
+            <Paper className={classes.form}>
 
-                <Table size='large' celled fixed selectable compact color={'yellow'}>
-                    <Table.Header style={{  position:'sticky'}}>
-                    <Table.Row>
-                        <Table.HeaderCell width={4}>Item Name</Table.HeaderCell>
-                        <Table.HeaderCell width={1}>Qty</Table.HeaderCell>
-                        <Table.HeaderCell width={2}>Rate</Table.HeaderCell>
-                        <Table.HeaderCell width={2}>Total</Table.HeaderCell>
-                        <Table.HeaderCell width={1}></Table.HeaderCell>
-                    </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
+                <TableContainer style={{maxHeight:70}} className={classes.table}>
+                    <Table stickyHeader size='small'>
+                    <TableHead>
+                    <TableRow>
+                        <TableCell>Item Name</TableCell>
+                        <TableCell width='15%'>Qty</TableCell>
+                        <TableCell>Rate</TableCell>
+                        <TableCell>Total</TableCell>
+                        <TableCell width='10'>Delete</TableCell>
+                    </TableRow>
+                    </TableHead>
+                    <TableBody>
                         
                         {this.state.buyingForm.items.map((row, index) =>(
-                            <Table.Row key={index}>
-                                <Table.Cell>{row.name}</Table.Cell>
-                                <Table.Cell> <TextField  type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} /></Table.Cell>
-                                <Table.Cell>{row.cost}</Table.Cell>
-                                <Table.Cell>{row.total}</Table.Cell>
-                                <Table.Cell><DeleteIcon onClick={() => {this.deleteItem(row,index)}}/></Table.Cell>
-                            </Table.Row>
+                            <TableRow hover key={index}>
+                                <TableCell>{row.name}</TableCell>
+                                <TableCell size='small'><TextField type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} /></TableCell>
+                                <TableCell align='right'>{row.cost}</TableCell>
+                                <TableCell align='right'>{row.total}</TableCell>
+                                <TableCell><DeleteIcon onClick={() => {this.deleteItem(row,index)}}/></TableCell>
+                            </TableRow>
                         ))}
-                    </Table.Body>
-                </Table>
-                
-
-            </div>
-            <Button type='button' style={{marginTop: 5}} onClick={this.getList}>Get all Items</Button>
-            </div>
-            
-            <div className='table-info' style={{backgroundColor:'#D6D6D6'}}>
-            <div className='table-info-grid'>
-            <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Information</h1>
-            <Grid container spacing={3}>
-                <Grid item>
-                    <TextField label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
+                    </TableBody>
+                    </Table>
+                    </TableContainer>
+                </Paper>
                 </Grid>
+
+
+            <Grid item xs={5}>
+            <Paper className={classes.form}>
+
+            <Grid container spacing={2}>        
+                <Grid item xs={12}>   
+                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Information</Typography>
+                </Grid>                   
                 <Grid item>
                     <TextField label='SUPPLIER' placeholder='Supplier' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
@@ -336,23 +363,37 @@ class Buying extends React.Component{
                     <TextField label='STATUS' disabled variant='outlined' value={this.state.buyingForm.status} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
             </Grid>
-            </div>
-            <div className='table-info-grid'>
-            <h1 style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}}>Summary</h1>
-            <Grid container spacing={3}>
+            
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Summary</Typography>
+                </Grid>
                 <Grid item>
-                    <TextField label='GRAND TOTAL'  variant='outlined' value={list_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                    <TextField label='GRAND TOTAL' disabled variant='outlined' value={list_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                 </Grid>
 
                 <Grid item>
-                    <TextField label='TOTAL QUANTITY' variant='outlined' value={qty_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
+                    <TextField label='TOTAL QUANTITY' disabled variant='outlined' value={qty_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
+                </Grid>
+
+            </Grid>
+            
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Action</Typography>
+                </Grid>
+
+                <Grid item>
+                {this.state.buyingForm.items.length > 0 ? (
+                <Button variant="contained" style={{padding:20}} type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+            ):<Button variant="contained" style={{padding:20}} basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+            }
                 </Grid>
             </Grid>
+</          Paper>
+            </Grid>
+            </Grid>
             </div>
-            </div>
-
-            </form>
-
             
             
             </>
@@ -360,4 +401,8 @@ class Buying extends React.Component{
     }
 }
 
-export default Buying
+Buying.propTypes = {
+    classes: PropTypes.object.isRequired,
+  };
+
+  export default withStyles(styles)(Buying);
