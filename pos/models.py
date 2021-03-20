@@ -26,7 +26,6 @@ class Item(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=100)
-    posting_datetime = models.DateTimeField(blank=True)
     barcode_number = models.CharField(max_length=13, blank=True)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
