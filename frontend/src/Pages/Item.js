@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import ItemForm from '../Components/ItemForm'
 
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid'
@@ -35,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.text.secondary,
     },
     table:{
-        minHeight:700,
+        maxHeight:700,
     }
 
 }));
@@ -45,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Item() {
     const classes = useStyles();
     const [itemList, setItemList] = useState([])
-    const [itemObj, setItem] = useState({name:'', barcode:'', cost:'', srp:''})
+    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:''})
     const [itemFormStatus, setItemForm] = useState('Create')
 
     function getCookie(name) {
@@ -75,7 +76,6 @@ export default function Item() {
 
     const handleSubmit = (e) =>{
         e.preventDefault()
-        console.log(itemObj.name)
         var csrftoken = getCookie('csrftoken')
         var url = 'http://127.0.0.1:8000/api/item-create/'
 
@@ -87,7 +87,7 @@ export default function Item() {
             },
             'body': JSON.stringify(itemObj)
         }).then((response) => {
-            setItem({...itemObj, name:'', barcode:'', srp:'', cost:''})
+            setItem({...itemObj, name:'', barcode_number:'', srp:'', cost:''})
         })
     }
 
@@ -96,11 +96,25 @@ export default function Item() {
     }
 
     const handleClearForm = (e) =>{
-        console.log('Hello?')
-        setItem({...itemObj, name:'', barcode:'', cost:'', srp:''})
-        console.log(itemObj)
+        setItemForm('Create')
+        setItem({...itemObj, name:'', barcode_number:'', cost:'', srp:''})
     }
 
+    var timer
+    const viewItemHandler = (e, item) => {
+        clearTimeout(timer)
+        if(e.detail === 1){
+            timer = setTimeout(() => {
+                setItem({...itemObj, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
+                setItemForm('View')
+            }, 200)
+        }
+        else{
+            setItemForm('Edit')
+        }
+        
+        
+    }
     
         return(
             <div className={classes.root}>
@@ -121,9 +135,9 @@ export default function Item() {
                     </TableHead>
                     <TableBody>
                     {itemList.map((item,key) =>(
-                        <TableRow key={item.id} hover>
+                        <TableRow onClick={(e) => viewItemHandler(e, item)} key={item.id} hover>
                            <TableCell>{item.name}</TableCell>
-                           <TableCell>{item.barcode}</TableCell>
+                           <TableCell>{item.barcode_number}</TableCell>
                            <TableCell>{item.cost}</TableCell>
                            <TableCell>{item.srp}</TableCell>
                            <TableCell>{item.modified}</TableCell>
@@ -145,23 +159,25 @@ export default function Item() {
                         <TextField id='name' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.name} label='Name'></TextField>
                         </Grid>
                         <Grid item xs={8}>
-                        <TextField id='barcode' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode} label='Barcode'></TextField>
+                        <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
-                        <TextField id='cost' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Cost'></TextField>
+                        <TextField fullWidth id='cost' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Buying'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <TextField id='srp' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.srp} variant='outlined' label='Price'></TextField>
+                        <TextField fullWidth id='srp' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.srp} variant='outlined' label='Selling'></TextField>
                         </Grid>
-                        <Grid container item spacing={2}>
+                        <Grid container item spacing={1}>
                         <Grid item xs={6}>
-                            
+                            {itemFormStatus !== 'View' && (itemObj.name !== '' && itemObj.barcode_number !== '' && itemObj.cost !== '' && itemObj.srp !== '') ? (
                             <Button fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Submit</Button>
+                            ):<Button disabled fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Submit</Button>
+                            }
                         </Grid>
                         <Grid item xs={6}>
-                            {itemObj.name !== '' || itemObj.barcode !=='' || itemObj.cost !=='' || itemObj.srp !=='' ? (
-                            <Button  fullWidth size='large' variant='contained' color='secondary' onClick={(e) => handleClearForm(e)}>Clear</Button>
+                            {itemObj.name !== '' || itemObj.barcode_number !== '' || itemObj.cost !== '' || itemObj.srp !== ''? (
+                            <Button fullWidth size='large' variant='contained' color='secondary' onClick={(e) => handleClearForm(e)}>Clear</Button>
                             ):<Button disabled fullWidth size='large' variant='contained' color='secondary' onClick={(e) => handleClearForm(e)}>Clear</Button>
                         }
                         </Grid>

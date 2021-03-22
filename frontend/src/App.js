@@ -19,7 +19,7 @@ class App extends React.Component{
       <Router>
       <Header/>
         <Switch>
-          <Route path='/home'  exact component={Home}/>
+          <Route path='/'  exact component={Home}/>
           <Route path='/buying' exact component={Buying}/>
           <Route path='/item' exact component={Item}/>
           <Route path='/pos' exact component={POS}/>
