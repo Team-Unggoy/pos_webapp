@@ -170,9 +170,14 @@ export default function Item() {
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={6}>
-                            {itemFormStatus !== 'View' && (itemObj.name !== '' && itemObj.barcode_number !== '' && itemObj.cost !== '' && itemObj.srp !== '') ? (
+                            {itemFormStatus === 'Create' && (itemObj.name !== '' && itemObj.barcode_number !== '' && itemObj.cost !== '' && itemObj.srp !== '') ? (
                             <Button fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Submit</Button>
+                            ):itemFormStatus === 'Edit' && (itemObj.name === '' || itemObj.barcode_number === '' || itemObj.cost === '' || itemObj.srp === '') ? (
+                            <Button disabled fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Save</Button>
+                            ):itemFormStatus === 'Edit' && (itemObj.name !== '' || itemObj.barcode_number !== '' || itemObj.cost !== '' || itemObj.srp !== '') ? (
+                            <Button fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Save</Button>
                             ):<Button disabled fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Submit</Button>
+
                             }
                         </Grid>
                         <Grid item xs={6}>
