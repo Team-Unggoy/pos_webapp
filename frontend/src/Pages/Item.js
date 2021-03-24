@@ -51,7 +51,7 @@ export default function Item() {
     const classes = useStyles();
     const [message, setMessage] = useState(false)
     const [itemList, setItemList] = useState([])
-    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:''})
+    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true})
     const [itemFormStatus, setItemForm] = useState('Create')
     const [columnToQuery, setColumnToQuery] = useState('')
     const [search, setSearch] = useState('')
@@ -129,13 +129,13 @@ export default function Item() {
         .then((response) => {
             setMessage(true)
             setItemForm('Create')
-            setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:''})
+            setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true})
         })
     }
 
     const handleClearForm = (e) =>{
         setItemForm('Create')
-        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:''})
+        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true})
     }
 
     
@@ -143,12 +143,12 @@ export default function Item() {
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable})
             setItemForm('View')
             }, 200)
         }
         else{
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable})
             setItemForm('Edit')
         }
         
@@ -157,6 +157,10 @@ export default function Item() {
 
     const handleSelect = (e) =>{
         setColumnToQuery(e.target.value)
+    }
+
+    const handleCheckChange = () =>{
+        setItem({...itemObj, enable:!itemObj.enable})
     }
 
     
@@ -219,7 +223,7 @@ export default function Item() {
                         <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <Checkbox label='Enable'/>
+                        <Checkbox onChange={handleCheckChange} checked={itemObj.enable} label='Enable'/>
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
