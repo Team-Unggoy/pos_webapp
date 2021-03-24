@@ -38,7 +38,7 @@ const styles = theme => ({
         padding:5
     },
     table:{
-        maxHeight:700
+        minHeight:700
     },
   });
 

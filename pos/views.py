@@ -42,12 +42,11 @@ def ItemCreate(request):
 
     return Response(serializer.data)
 
-@api_view(['POST'])
+@api_view(['PUT'])
 def ItemUpdate(request, pk):
-
-    item = Item.objects.get(id = pk)
+    item = Item.objects.get(id=pk)
     serializer = ItemSerializer(instance=item, data=request.data)
-    if serializer.is_valid:
+    if serializer.is_valid():
         serializer.save()
 
     return Response(serializer.data)

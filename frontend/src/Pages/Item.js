@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import ItemForm from '../Components/ItemForm'
+
 
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid'
@@ -13,8 +13,11 @@ import TableBody from '@material-ui/core/TableBody';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
-
-
+import Snackbar from '@material-ui/core/Snackbar'
+import Alert from '@material-ui/lab/Alert';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import Checkbox from '@material-ui/core/Checkbox'
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -44,10 +47,14 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function Item() {
+    var timer
     const classes = useStyles();
+    const [message, setMessage] = useState(false)
     const [itemList, setItemList] = useState([])
     const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:''})
     const [itemFormStatus, setItemForm] = useState('Create')
+    const [columnToQuery, setColumnToQuery] = useState('')
+    const [search, setSearch] = useState('')
 
     function getCookie(name) {
         let cookieValue = null;
@@ -74,6 +81,18 @@ export default function Item() {
         .then(response => setItemList(response))
         },[itemObj])
 
+    const handleOpen = () =>{
+        console.log('open')
+    }
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setMessage(false);
+      };
+
     const handleSubmit = (e) =>{
         e.preventDefault()
         var csrftoken = getCookie('csrftoken')
@@ -87,7 +106,7 @@ export default function Item() {
             },
             'body': JSON.stringify(itemObj)
         }).then((response) => {
-            setItem({...itemObj, name:'', barcode_number:'', srp:'', cost:''})
+            setItem({...itemObj, id:null, name:'', barcode_number:'', srp:'', cost:''})
         })
     }
 
@@ -95,26 +114,51 @@ export default function Item() {
         setItem({...itemObj, [e.target.id]:e.target.value})
     }
 
-    const handleClearForm = (e) =>{
-        setItemForm('Create')
-        setItem({...itemObj, name:'', barcode_number:'', cost:'', srp:''})
+    const handleEdit = (e) =>{
+        e.preventDefault()
+        var csrftoken = getCookie('csrftoken')
+        var url = `http://127.0.0.1:8000/api/item-update/${itemObj.id}/`
+        fetch(url, {
+            method: 'PUT',
+            headers:{
+                'Content-type':'application/json',
+                'X-CSRFToken':csrftoken,
+            },
+            'body': JSON.stringify(itemObj)
+        })
+        .then((response) => {
+            setMessage(true)
+            setItemForm('Create')
+            setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:''})
+        })
     }
 
-    var timer
+    const handleClearForm = (e) =>{
+        setItemForm('Create')
+        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:''})
+    }
+
+    
     const viewItemHandler = (e, item) => {
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
-                setItem({...itemObj, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
-                setItemForm('View')
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
+            setItemForm('View')
             }, 200)
         }
         else{
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp})
             setItemForm('Edit')
         }
         
         
     }
+
+    const handleSelect = (e) =>{
+        setColumnToQuery(e.target.value)
+    }
+
     
         return(
             <div className={classes.root}>
@@ -122,14 +166,27 @@ export default function Item() {
             <Grid container spacing={1}>
                 <Grid item xs={7}> 
                 <Paper className={classes.paper}>
+                <Grid container style={{padding:5}} spacing={2}>
+                    <Grid item xs={6}>
+                        <TextField onChange={(e) => setSearch(e.target.value)} value={search} label='SEARCH' size='small' fullWidth variant='outlined'></TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Select onChange={(e) => handleSelect(e)} fullWidth variant='standard'>
+                            <MenuItem value='name'>Item Name</MenuItem>
+                            <MenuItem value='barcode'>Item Barcode</MenuItem>
+                            <MenuItem value='rate'>Item Buying</MenuItem>
+                            <MenuItem value='cost'>Item Selling</MenuItem>
+                        </Select>
+                    </Grid>
+                </Grid>
                 <TableContainer className={classes.table}>
-                    <Table stickyHeader>
+                    <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
                                 <TableCell>Item Name</TableCell>
                                 <TableCell>Barcode</TableCell>
-                                <TableCell>Rate</TableCell>
-                                <TableCell>Cost</TableCell>
+                                <TableCell>Buying</TableCell>
+                                <TableCell>Selling</TableCell>
                                 <TableCell width='10'>Modified</TableCell>
                         </TableRow>
                     </TableHead>
@@ -161,6 +218,9 @@ export default function Item() {
                         <Grid item xs={8}>
                         <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
+                        <Grid item xs={4}>
+                        <Checkbox label='Enable'/>
+                        </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
                         <TextField fullWidth id='cost' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Buying'></TextField>
@@ -175,7 +235,7 @@ export default function Item() {
                             ):itemFormStatus === 'Edit' && (itemObj.name === '' || itemObj.barcode_number === '' || itemObj.cost === '' || itemObj.srp === '') ? (
                             <Button disabled fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Save</Button>
                             ):itemFormStatus === 'Edit' && (itemObj.name !== '' || itemObj.barcode_number !== '' || itemObj.cost !== '' || itemObj.srp !== '') ? (
-                            <Button fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Save</Button>
+                            <Button fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleEdit(e, itemObj)}>Save</Button>
                             ):<Button disabled fullWidth size='large' variant='contained' color='primary' onClick={(e) => handleSubmit(e)}>Submit</Button>
 
                             }
@@ -192,7 +252,12 @@ export default function Item() {
                     </Paper>
                 </Grid>
                 
-            </Grid>        
+            </Grid>   
+            <Snackbar anchorOrigin={{vertical: 'bottom', horizontal:'right'}} autoHideDuration={6000} open={message} onClose={handleClose}>
+            <Alert variant='filled' elevation={6} onClose={handleClose} severity="success">
+                Saved
+            </Alert>
+            </Snackbar>
             </div>
         );
     }
