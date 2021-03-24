@@ -17,6 +17,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import Alert from '@material-ui/lab/Alert';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox'
 
 const useStyles = makeStyles((theme) => ({
@@ -53,7 +54,7 @@ export default function Item() {
     const [itemList, setItemList] = useState([])
     const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true})
     const [itemFormStatus, setItemForm] = useState('Create')
-    const [columnToQuery, setColumnToQuery] = useState('')
+    const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
 
     function getCookie(name) {
@@ -176,10 +177,10 @@ export default function Item() {
                     </Grid>
                     <Grid item xs={6}>
                         <Select onChange={(e) => handleSelect(e)} fullWidth variant='standard'>
-                            <MenuItem value='name'>Item Name</MenuItem>
-                            <MenuItem value='barcode'>Item Barcode</MenuItem>
-                            <MenuItem value='rate'>Item Buying</MenuItem>
-                            <MenuItem value='cost'>Item Selling</MenuItem>
+                            <MenuItem value='name'>Name</MenuItem>
+                            <MenuItem value='barcode_number'>Barcode</MenuItem>
+                            <MenuItem value='cost'>Buying</MenuItem>
+                            <MenuItem value='srp'>Selling</MenuItem>
                         </Select>
                     </Grid>
                 </Grid>
@@ -195,7 +196,13 @@ export default function Item() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                    {itemList.map((item,key) =>(
+                    {itemList.filter((val) => {
+                        if(search === ''){
+                            return val
+                        }else if(val[columnToQuery].toLowerCase().includes(search.toLowerCase())){
+                            return val
+                        }
+                    }).map((item,key) =>(
                         <TableRow onClick={(e) => viewItemHandler(e, item)} key={item.id} hover>
                            <TableCell>{item.name}</TableCell>
                            <TableCell>{item.barcode_number}</TableCell>
@@ -223,7 +230,7 @@ export default function Item() {
                         <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <Checkbox onChange={handleCheckChange} checked={itemObj.enable} label='Enable'/>
+                        <FormControlLabel control={<Checkbox onChange={handleCheckChange} checked={itemObj.enable}/>} label='Enable'/>
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
