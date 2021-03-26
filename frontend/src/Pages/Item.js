@@ -188,6 +188,9 @@ export default function Item() {
         }else if(diff > 2.6280E+9 && diff < 3.1536E+10){
             var months_ago = diff/2.6280E+9
             return(Math.floor(months_ago) + ' M')
+        }else if(diff >= 3.1536E+10){
+            var years_ago = diff/3.1536E+10
+            return(Math.floor(years_ago) + ' Y')
         }
 
     }
