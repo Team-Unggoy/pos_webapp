@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
-
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -44,7 +42,13 @@ const useStyles = makeStyles((theme) => ({
     },
     table:{
         maxHeight:700,
-    }
+    },
+    tableRow: {
+        "&.Mui-selected, &.Mui-selected:hover": {
+          backgroundColor: "#e9c46a",
+        }
+      },
+
 
 }));
 
@@ -60,7 +64,8 @@ export default function Item() {
     const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
     const [markup, setMarkup] = useState(0)
-    const [inventory, setInventory] = useState(0)
+    const [margin, setMargin] = useState(0)
+    const [selectedRow, setSelectedRow] = useState(0)
 
     function getCookie(name) {
         let cookieValue = null;
@@ -137,7 +142,9 @@ export default function Item() {
 
     const handleClearForm = (e) =>{
         setItemForm('Create')
+        setSelectedRow('')
         setMarkup(0)
+        setMargin(0)
         setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true, packing:1})
     }
 
@@ -146,13 +153,17 @@ export default function Item() {
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
-            setMarkup((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2))
+            setSelectedRow(item.id)
+            setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
+            setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
             setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
             setItemForm('View')
             }, 200)
         }
         else{
-            setMarkup((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2))
+            setSelectedRow(item.id)
+            setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
+            setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
             setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
             setItemForm('Edit')
         }
@@ -237,12 +248,13 @@ export default function Item() {
                         }else if(val[columnToQuery].toLowerCase().includes(search.toLowerCase())){
                             return val}
                     }).map((item,key) =>(
-                        <TableRow onClick={(e) => viewItemHandler(e, item)} key={item.id} hover>
+                        <TableRow className={classes.tableRow} selected={selectedRow === item.id} onClick={(e) => viewItemHandler(e, item)} key={item.id} hover>
                            <TableCell>{item.name}</TableCell>
                            <TableCell>{item.barcode_number}</TableCell>
                            <TableCell>{item.cost}</TableCell>
                            <TableCell>{item.srp}</TableCell>
-                           <TableCell>{formatModifiedDate(item.modified)}</TableCell>
+                           <TableCell>{formatModifiedDate(item.modified)} </TableCell>
+                           
                         </TableRow>
                     ))}
                     </TableBody>
@@ -269,20 +281,21 @@ export default function Item() {
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
-                        <TextField fullWidth id='cost' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Buying'></TextField>
+                        <TextField fullWidth id='cost' size='small' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Buying'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <TextField fullWidth id='srp' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.srp} variant='outlined' label='Selling'></TextField>
+                        <TextField fullWidth id='srp' size='small' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.srp} variant='outlined' label='Selling'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <FormControlLabel control={<Checkbox onChange={handleCheckChange} checked={itemObj.enable}/>} label='Enable'/>
+                        <FormControlLabel control={<Checkbox color={'primary'} onChange={() => handleCheckChange()} checked={itemObj.enable}/>} label='Enable'/>
                         </Grid>
+                        
                         <Grid container item style={{paddingTop:20}} spacing={1}>
                         <Grid item xs={6}>
-                        <TextField read_only fullWidth value={markup} variant='outlined' label='Markup'></TextField>
+                        <TextField read_only size='small' fullWidth value={margin} variant='outlined' label='Margin'></TextField>
                         </Grid>
                         <Grid item xs={6}>
-                        <TextField read_only fullWidth variant='outlined' value={inventory} label='Inventory'></TextField>
+                        <TextField read_only size='small' fullWidth value={markup} variant='outlined' label='Markup'></TextField>
                         </Grid>
                         </Grid>
                         <Grid container item spacing={1}>

@@ -32,6 +32,8 @@ const useStyles = makeStyles((theme) => ({
   },
 
   activeDrawer:{
+    
+    backgroundColor:'#282c34 !important',
     textDecoration:'none',
     color:'black',
   },
