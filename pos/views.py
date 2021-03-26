@@ -23,6 +23,7 @@ def apiOverView(request):
 def ItemList(request):
     items = Item.objects.all()
     serializer = ItemSerializer(items, many=True)
+    print(serializer)
     return Response(serializer.data)
 
 @api_view(['GET'])

@@ -30,7 +30,7 @@ class Item(models.Model):
     enable = models.BooleanField(default=True)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    margin = models.PositiveIntegerField(default=1)
+    packing = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ['-modified']

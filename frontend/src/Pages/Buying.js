@@ -21,8 +21,15 @@ const styles = theme => ({
         flexGrow: 1,
       },
 
+    searchForm:{
+        marginLeft: 15,
+        paddingTop: 15,
+        paddingBottom: 15,
+        backgroundColor:'#D6D6D6'
+    },
+
     search:{
-        margin:15
+        margin:15,
     },
     paper: {
         padding:5,
@@ -34,7 +41,6 @@ const styles = theme => ({
         margin:5,
         marginLeft:30,
         backgroundColor:'#D6D6D6',
-        border:'1px solid black',
         padding:5
     },
     table:{
@@ -298,22 +304,18 @@ class Buying extends React.Component{
        
 
             <div className={classes.root}>
-            <Grid className={classes.search}>
+            <Grid container className={classes.search} spacing={1}>
+            <Paper className={classes.searchForm}>
+            <Grid item xs={4}>
             <TextField style={{marginBottom:10}} label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
+            </Grid>
+            <Grid item xs={4}>
 
-            <Search
-            className='searchbar'
-            size='big'
-            input={{ icon: 'search', iconPosition: 'left' }}
-            loading={this.state.isLoading}
-            onResultSelect={this.handleResultSelect}
-            onSearchChange={_.debounce(this.handleSearchChange, 500, {
-                leading: true,
-            })}
-            results={this.state.results}
-            value={this.state.value}
-            />
+            <Search className='searchbar' size='big' input={{ icon: 'search', iconPosition: 'left' }} loading={this.state.isLoading} onResultSelect={this.handleResultSelect}
+            onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true, })} results={this.state.results} value={this.state.value} />
+            </Grid>
 
+            </Paper>
             </Grid>
             <Grid container spacing={2}>
             <Grid item xs={6}>
@@ -384,8 +386,8 @@ class Buying extends React.Component{
 
                 <Grid item>
                 {this.state.buyingForm.items.length > 0 ? (
-                <Button variant="contained" style={{padding:20}} type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            ):<Button variant="contained" style={{padding:20}} basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+                <Button variant="contained" type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
+            ):<Button variant="contained" basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
             }
                 </Grid>
             </Grid>

@@ -19,6 +19,9 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox'
+import InputAdornment from "@material-ui/core/InputAdornment";
+import SearchIcon from "@material-ui/icons/Search";
+import FormControl from '@material-ui/core/FormControl'
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -52,10 +55,12 @@ export default function Item() {
     const classes = useStyles();
     const [message, setMessage] = useState(false)
     const [itemList, setItemList] = useState([])
-    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true})
+    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true, packing:1})
     const [itemFormStatus, setItemForm] = useState('Create')
     const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
+    const [markup, setMarkup] = useState(0)
+    const [inventory, setInventory] = useState(0)
 
     function getCookie(name) {
         let cookieValue = null;
@@ -82,10 +87,6 @@ export default function Item() {
         .then(response => setItemList(response))
         },[itemObj])
 
-    const handleOpen = () =>{
-        console.log('open')
-    }
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
           return;
@@ -107,7 +108,8 @@ export default function Item() {
             },
             'body': JSON.stringify(itemObj)
         }).then((response) => {
-            setItem({...itemObj, id:null, name:'', barcode_number:'', srp:'', cost:''})
+            handleClearForm()
+            
         })
     }
 
@@ -129,14 +131,14 @@ export default function Item() {
         })
         .then((response) => {
             setMessage(true)
-            setItemForm('Create')
-            setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true})
+            handleClearForm()
         })
     }
 
     const handleClearForm = (e) =>{
         setItemForm('Create')
-        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true})
+        setMarkup(0)
+        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true, packing:1})
     }
 
     
@@ -144,12 +146,14 @@ export default function Item() {
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable})
+            setMarkup((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2))
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
             setItemForm('View')
             }, 200)
         }
         else{
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable})
+            setMarkup((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2))
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
             setItemForm('Edit')
         }
         
@@ -157,6 +161,7 @@ export default function Item() {
     }
 
     const handleSelect = (e) =>{
+        setSearch('')
         setColumnToQuery(e.target.value)
     }
 
@@ -164,6 +169,28 @@ export default function Item() {
         setItem({...itemObj, enable:!itemObj.enable})
     }
 
+
+    const formatModifiedDate = (date_modified) =>{
+        var current_date = new Date()
+        var modified = new Date(date_modified)
+        var diff = current_date - modified
+        if(diff < 60000){
+            return ('Now')
+        }else if(diff > 60000 && diff < 3600000){
+            var mins_ago = diff/60000
+            return (Math.floor(mins_ago) + ' m')
+        }else if(diff > 3600000 && diff < 86400000){
+            var hours_ago = diff/3600000
+            return (Math.floor(hours_ago) + 'h')
+        }else if(diff > 86400000 && diff < 2.6280E+9){
+            var days_ago = diff/86400000
+            return(Math.floor(days_ago) + ' d')
+        }else if(diff > 2.6280E+9 && diff < 3.1536E+10){
+            var months_ago = diff/2.6280E+9
+            return(Math.floor(months_ago) + ' M')
+        }
+
+    }
     
         return(
             <div className={classes.root}>
@@ -173,15 +200,20 @@ export default function Item() {
                 <Paper className={classes.paper}>
                 <Grid container style={{padding:5}} spacing={2}>
                     <Grid item xs={6}>
-                        <TextField onChange={(e) => setSearch(e.target.value)} value={search} label='SEARCH' size='small' fullWidth variant='outlined'></TextField>
+                        <TextField type="search" onChange={(e) => setSearch(e.target.value)} value={search} label='SEARCH' size='small' fullWidth variant='outlined' InputProps={{startAdornment: (
+                        <InputAdornment position="start">
+                        <SearchIcon />
+                        </InputAdornment>)}}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <Select onChange={(e) => handleSelect(e)} fullWidth variant='standard'>
+                        <FormControl fullWidth variant='outlined' size='small'>
+                        <Select onChange={(e) => handleSelect(e)} fullWidth variant='outlined'>
                             <MenuItem value='name'>Name</MenuItem>
                             <MenuItem value='barcode_number'>Barcode</MenuItem>
                             <MenuItem value='cost'>Buying</MenuItem>
                             <MenuItem value='srp'>Selling</MenuItem>
                         </Select>
+                        </FormControl>
                     </Grid>
                 </Grid>
                 <TableContainer className={classes.table}>
@@ -200,15 +232,14 @@ export default function Item() {
                         if(search === ''){
                             return val
                         }else if(val[columnToQuery].toLowerCase().includes(search.toLowerCase())){
-                            return val
-                        }
+                            return val}
                     }).map((item,key) =>(
                         <TableRow onClick={(e) => viewItemHandler(e, item)} key={item.id} hover>
                            <TableCell>{item.name}</TableCell>
                            <TableCell>{item.barcode_number}</TableCell>
                            <TableCell>{item.cost}</TableCell>
                            <TableCell>{item.srp}</TableCell>
-                           <TableCell>{item.modified}</TableCell>
+                           <TableCell>{formatModifiedDate(item.modified)}</TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
@@ -221,7 +252,8 @@ export default function Item() {
                     <Paper className={classes.form}>
                         <Grid container item spacing={2}>
                         <Grid item xs={12}>
-                        <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:5, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Item {itemFormStatus}</Typography>
+                        <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:5, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Item {itemFormStatus} </Typography>
+                        
                         </Grid>
                         <Grid item xs={12}>
                         <TextField id='name' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.name} label='Name'></TextField>
@@ -230,7 +262,7 @@ export default function Item() {
                         <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
                         <Grid item xs={4}>
-                        <FormControlLabel control={<Checkbox onChange={handleCheckChange} checked={itemObj.enable}/>} label='Enable'/>
+                        <TextField id='packing' onChange={(e) => {itemCreate(e)}} type='number' fullWidth variant='outlined' value={itemObj.packing} label='Packing'></TextField>
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
@@ -238,6 +270,17 @@ export default function Item() {
                         </Grid>
                         <Grid item xs={4}>
                         <TextField fullWidth id='srp' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.srp} variant='outlined' label='Selling'></TextField>
+                        </Grid>
+                        <Grid item xs={4}>
+                        <FormControlLabel control={<Checkbox onChange={handleCheckChange} checked={itemObj.enable}/>} label='Enable'/>
+                        </Grid>
+                        <Grid container item style={{paddingTop:20}} spacing={1}>
+                        <Grid item xs={6}>
+                        <TextField read_only fullWidth value={markup} variant='outlined' label='Markup'></TextField>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <TextField read_only fullWidth variant='outlined' value={inventory} label='Inventory'></TextField>
+                        </Grid>
                         </Grid>
                         <Grid container item spacing={1}>
                         <Grid item xs={6}>
