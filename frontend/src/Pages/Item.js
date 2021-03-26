@@ -289,15 +289,26 @@ export default function Item() {
                         <Grid item xs={4}>
                         <FormControlLabel control={<Checkbox color={'primary'} onChange={() => handleCheckChange()} checked={itemObj.enable}/>} label='Enable'/>
                         </Grid>
-                        
+                        {itemFormStatus === 'Create' ? (
                         <Grid container item style={{paddingTop:20}} spacing={1}>
-                        <Grid item xs={6}>
-                        <TextField read_only size='small' fullWidth value={margin} variant='outlined' label='Margin'></TextField>
+                            <Grid item xs={6}>
+                            <TextField disabled read_only size='small' fullWidth value={margin} variant='outlined' label='Margin'></TextField>
+                            </Grid>
+                            <Grid item xs={6}>
+                            <TextField disabled read_only size='small' fullWidth value={markup} variant='outlined' label='Markup'></TextField>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={6}>
-                        <TextField read_only size='small' fullWidth value={markup} variant='outlined' label='Markup'></TextField>
+                        ):
+                        <Grid container item style={{paddingTop:20}} spacing={1}>
+                            <Grid item xs={6}>
+                            <TextField read_only size='small' fullWidth value={margin} variant='outlined' label='Margin'></TextField>
+                            </Grid>
+                            <Grid item xs={6}>
+                            <TextField read_only size='small' fullWidth value={markup} variant='outlined' label='Markup'></TextField>
+                            </Grid>
                         </Grid>
-                        </Grid>
+                        }
+                        
                         <Grid container item spacing={1}>
                         <Grid item xs={6}>
                             {itemFormStatus === 'Create' && (itemObj.name !== '' && itemObj.barcode_number !== '' && itemObj.cost !== '' && itemObj.srp !== '') ? (
