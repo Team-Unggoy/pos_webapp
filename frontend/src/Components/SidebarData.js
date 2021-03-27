@@ -4,6 +4,7 @@ import ListIcon from '@material-ui/icons/List';
 import InfoIcon from '@material-ui/icons/Info';
 import StoreIcon from '@material-ui/icons/Store';
 import ComputerIcon from '@material-ui/icons/Computer';
+import LocalGroceryStoreIcon from '@material-ui/icons/LocalGroceryStore';
 
 export const SidebarData = [
     {
@@ -20,6 +21,11 @@ export const SidebarData = [
         icon: <ListIcon />,
         text: 'Item',
         path: '/item',
+    },
+    {
+        icon: <LocalGroceryStoreIcon/>,
+        text: 'Receive',
+        path: '/receive',
     },
     {
         icon: <ComputerIcon />,

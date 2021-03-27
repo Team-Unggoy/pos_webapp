@@ -61,7 +61,8 @@ export default function Receive() {
                     </Grid>
                     <Grid item xs={3}>
                     <Autocomplete
-                    size='small '
+                    size='small'
+                    onChange ={() => console.log('testing')}
                     id="combo-box-demo"
                     options={purchaseOrderList}
                     getOptionLabel={(option) => option.order_number.toString()}

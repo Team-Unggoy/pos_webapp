@@ -21,6 +21,14 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return(self.name)
+
+class PurchaseReceipt(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    supplier = models.CharField(max_length=100)
+    status = models.CharField(max_length=100, default='None')
+
     
 class Item(models.Model):
     creation = models.DateTimeField(auto_now_add=True)

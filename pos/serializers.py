@@ -15,7 +15,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
     items = PurchaseOrderItemSerializer(many=True)
     class Meta:
         model = PurchaseOrder
-        fields = ['posting_datetime', 'supplier', 'status', 'items']
+        fields = ['order_number','posting_datetime', 'supplier', 'status', 'items']
 
     def create(self, validated_data):
         items = validated_data.pop('items')
