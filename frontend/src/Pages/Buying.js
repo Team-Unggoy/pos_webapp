@@ -250,7 +250,7 @@ class Buying extends React.Component{
         }
         }
 
-        qtyHandle = (event, row, index) => {
+        qtyHandle = (event, row) => {
             this.setState(prevState => ({
                 buyingForm:{
                     ...this.state.buyingForm,
@@ -284,6 +284,7 @@ class Buying extends React.Component{
             })
         }
         
+        
 
         
 
@@ -293,6 +294,7 @@ class Buying extends React.Component{
         const qty_total = this.state.buyingForm.items.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
         const list_total = this.state.buyingForm.items.reduce((list_total,list) => list_total + list.total, 0)
         list_total.toFixed(2)
+        console.log(this.state.buyingForm)
 
         return(
      
@@ -335,7 +337,7 @@ class Buying extends React.Component{
                         {this.state.buyingForm.items.map((row, index) =>(
                             <TableRow hover key={index}>
                                 <TableCell>{row.name}</TableCell>
-                                <TableCell size='small'><TextField type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row,index)}} /></TableCell>
+                                <TableCell size='small'><TextField type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row)}} /></TableCell>
                                 <TableCell align='right'>{row.cost}</TableCell>
                                 <TableCell align='right'>{row.total}</TableCell>
                                 <TableCell><DeleteIcon onClick={() => {this.deleteItem(row,index)}}/></TableCell>

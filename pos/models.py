@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils.datetime_safe import datetime
+from django.utils import timezone
+
 
 # Create your models here.
 
@@ -7,14 +9,30 @@ class PurchaseOrder(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(blank=True)
-    order_number = models.AutoField(primary_key=True)
+    # order_number = models.AutoField(primary_key=True)
+    purchase_order_number = models.CharField(primary_key=True ,max_length=255, blank=True, null=False, default=None)
     supplier = models.CharField(max_length=100, blank=True, default=None)
     status = models.CharField(max_length=100, default='None')
+
+    def save(self,*args, **kwargs):
+       if not self.purchase_order_number:
+           prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
+           prev_instances = self.__class__.objects.filter(purchase_order_number__contains=prefix)
+           if prev_instances.exists():
+              last_instance_id = prev_instances.last().purchase_order_number[-4:]
+              self.purchase_order_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+           else:
+               self.purchase_order_number = prefix+'{0:04d}'.format(1)
+       super(PurchaseOrder, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return(self.purchase_order_number)
+
 
 class PurchaseOrderItem(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modifeid= models.DateTimeField(auto_now=True)
-    order_number = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
+    purchase_order_number = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)

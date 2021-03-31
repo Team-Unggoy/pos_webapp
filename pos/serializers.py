@@ -15,14 +15,14 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
     items = PurchaseOrderItemSerializer(many=True)
     class Meta:
         model = PurchaseOrder
-        fields = ['order_number','posting_datetime', 'supplier', 'status', 'items']
+        fields = ['posting_datetime', 'supplier', 'status', 'items', 'purchase_order_number']
 
     def create(self, validated_data):
         items = validated_data.pop('items')
-        order_number = PurchaseOrder.objects.create(**validated_data)
+        purchase_order_number = PurchaseOrder.objects.create(**validated_data)
         for item in items:
-            PurchaseOrderItem.objects.create(order_number=order_number, **item)
-        return order_number
+            PurchaseOrderItem.objects.create(purchase_order_number=purchase_order_number, **item)
+        return purchase_order_number
 
 
 
