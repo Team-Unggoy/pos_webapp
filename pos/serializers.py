@@ -36,8 +36,7 @@ class PurchaseReceiptSerializer(serializers.ModelSerializer):
         fields = ['posting_datetime', 'items', 'supplier', 'status', 'purchase_order_number', 'invoice_amount' , 'purchase_receipt_number']
 
     def create(self, validated_data):
-        print('ga dagan nako diri?')
-        items = validated_data('items')
+        items = validated_data.pop('items')
         purchase_receipt_number = PurchaseReceipt.objects.create(**validated_data)
         for item in items:
             PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, **item)
