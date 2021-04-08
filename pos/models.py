@@ -9,21 +9,20 @@ class PurchaseOrder(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(blank=True)
-    # order_number = models.AutoField(primary_key=True)
     purchase_order_number = models.CharField(primary_key=True ,max_length=255, blank=True, null=False, default=None)
     supplier = models.CharField(max_length=100, blank=True, default=None)
     status = models.CharField(max_length=100, default='None')
 
     def save(self,*args, **kwargs):
-       if not self.purchase_order_number:
-           prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
-           prev_instances = self.__class__.objects.filter(purchase_order_number__contains=prefix)
-           if prev_instances.exists():
-              last_instance_id = prev_instances.last().purchase_order_number[-4:]
-              self.purchase_order_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
-           else:
-               self.purchase_order_number = prefix+'{0:04d}'.format(1)
-       super(PurchaseOrder, self).save(*args, **kwargs)
+        if not self.purchase_order_number:
+            prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
+            prev_instances = self.__class__.objects.filter(purchase_order_number__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.last().purchase_order_number[-4:]
+                self.purchase_order_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.purchase_order_number = prefix+'{0:04d}'.format(1)
+            super(PurchaseOrder, self).save(*args, **kwargs)
 
     def __str__(self):
         return(self.purchase_order_number)
@@ -43,10 +42,32 @@ class PurchaseOrderItem(models.Model):
 class PurchaseReceipt(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    posting_datetime = models.DateTimeField(blank=True)
+    purchase_receipt_number = models.CharField(primary_key=True, max_length=255, blank=True, null=False, default=None)
+    purchase_order_number = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     supplier = models.CharField(max_length=100)
     status = models.CharField(max_length=100, default='None')
+    invoice_amount = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
 
+    def save(self,*args, **kwargs):
+        if not self.purchase_receipt_number:
+            prefix = 'PR-{}'.format(timezone.now().strftime('%y%m%d'))
+            prev_instances = self.__class__.objects.filter(purchase_receipt_number__contains=prefix)
+            if prev_instances.exists():
+                last_instance_id = prev_instances.last().purchase_receipt_number[-4:]
+                self.purchase_receipt_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.purchase_receipt_number = prefix+'{0:04d}'.format(1)
+            super(PurchaseReceipt, self).save(*args, **kwargs)
+
+
+class PurchaseReceiptItem(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    purchase_receipt_number = models.ForeignKey(PurchaseReceipt, related_name='items', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    qty = models.PositiveIntegerField(default=1)
+    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     
 class Item(models.Model):
     creation = models.DateTimeField(auto_now_add=True)

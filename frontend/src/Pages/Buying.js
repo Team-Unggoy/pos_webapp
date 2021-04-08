@@ -291,18 +291,15 @@ class Buying extends React.Component{
         
     render(){
         const { classes } = this.props;
-        const qty_total = this.state.buyingForm.items.reduce((qty_total, list) => qty_total + parseInt(list.qty),0)
-        const list_total = this.state.buyingForm.items.reduce((list_total,list) => list_total + list.total, 0)
+        const qty_total = this.state.buyingForm.items.reduce((qty_total, current) => qty_total + parseInt(current.qty),0)
+        const list_total = this.state.buyingForm.items.reduce((list_total,current) => list_total + current.total, 0)
         list_total.toFixed(2)
         console.log(this.state.buyingForm)
 
         return(
      
             <>
-            
-            
-       
-
+    
             <div className={classes.root}>
             <Grid container className={classes.search} spacing={1}>
             <Paper className={classes.searchForm}>

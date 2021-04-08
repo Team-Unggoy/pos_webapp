@@ -9,6 +9,11 @@ urlpatterns = [
     path('item-update/<str:pk>/', views.ItemUpdate, name='item-update'),
     path('item-delete/', views.ItemDelete, name='item-delete'),
 
+    path('purchaseorder-list-submitted/', views.submittedPurchaseOrderList, name='purchaseorder-list-submitted'),
+
     path('purchaseorder-create/', views.PurchaseOrderCreate, name='purchaseorder-create'),
     path('purchaseorder-list/', views.purchaseOrderList, name='purchaseorder-list'),
+
+    path('purchasereceipt-create/', views.PurchaseReceiptCreate, name='purchasereceipt-create'),
+
 ]

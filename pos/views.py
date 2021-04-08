@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Item, PurchaseOrder, PurchaseOrderItem
-from .serializers import ItemSerializer, PurchaseOrderSerializer
+from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer
 
 # Create your views here.
 
@@ -62,8 +62,6 @@ def ItemDelete(request,pk):
 @api_view(['POST'])
 def PurchaseOrderCreate(request):
     serializer = PurchaseOrderSerializer(data=request.data)
-    print(serializer)
-    print(serializer.is_valid())
     if serializer.is_valid():
         serializer.save()
     
@@ -75,3 +73,17 @@ def purchaseOrderList(request):
     serializer = PurchaseOrderSerializer(purchaseorders, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def submittedPurchaseOrderList(request):
+    purchaseorders = PurchaseOrder.objects.filter(status='Submitted')
+    serializer = PurchaseOrderSerializer(purchaseorders, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def PurchaseReceiptCreate(request):
+    serializer = PurchaseReceiptSerializer(data=request.data)
+    print(serializer.is_valid())
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data)
