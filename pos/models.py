@@ -13,6 +13,9 @@ class PurchaseOrder(models.Model):
     supplier = models.CharField(max_length=100, blank=True, default=None)
     status = models.CharField(max_length=100, default='None')
 
+    class Meta:
+        ordering = ['-modified']
+
     def save(self,*args, **kwargs):
         if not self.purchase_order_number:
             prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
@@ -30,11 +33,13 @@ class PurchaseOrder(models.Model):
 
 class PurchaseOrderItem(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
-    modifeid= models.DateTimeField(auto_now=True)
+    modified= models.DateTimeField(auto_now=True)
     purchase_order_number = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+
+  
 
     def __str__(self):
         return(self.name)
@@ -48,6 +53,9 @@ class PurchaseReceipt(models.Model):
     supplier = models.CharField(max_length=100)
     status = models.CharField(max_length=100, default='None')
     invoice_amount = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+      
+    class Meta:
+        ordering = ['-modified']
 
     def save(self,*args, **kwargs):
         if not self.purchase_receipt_number:

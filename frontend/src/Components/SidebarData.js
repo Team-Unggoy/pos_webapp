@@ -13,14 +13,14 @@ export const SidebarData = [
         path:'/home',
     },
     {
-        icon:<StoreIcon />,
-        text: 'Buying',
-        path:'/buying',
-    },
-    {
         icon: <ListIcon />,
         text: 'Item',
         path: '/item',
+    },
+    {
+        icon:<StoreIcon />,
+        text: 'Buying',
+        path:'/buyingList',
     },
     {
         icon: <LocalGroceryStoreIcon/>,

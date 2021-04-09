@@ -6,6 +6,7 @@ import Home from './Pages/Home'
 import Buying from './Pages/Buying'
 import Receive from './Pages/Receive'
 import POS from './Pages/POS'
+import BuyingList from './Pages/BuyingList'
 import React from 'react'
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom'
 
@@ -22,6 +23,7 @@ class App extends React.Component{
         <Switch>
           <Route path='/'  exact component={Home}/>
           <Route path='/buying' exact component={Buying}/>
+          <Route path='/buyingList' exact component={BuyingList}/>
           <Route path='/item' exact component={Item}/>
           <Route path='/receive' exact component={Receive}/>
           <Route path='/pos' exact component={POS}/>

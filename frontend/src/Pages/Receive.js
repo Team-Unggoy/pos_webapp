@@ -151,7 +151,7 @@ export default function Receive() {
             
         }
         catch{
-            setPurchaseReceiptForm({...purchaseReceiptForm ,purchase_order_number:'' ,supplier:'', status:'', items:[], invoice_amount:''})
+            setPurchaseReceiptForm({...purchaseReceiptForm ,purchase_order_number:'' ,supplier:'', status:'', items:[], invoice_amount:0})
         }
 
 

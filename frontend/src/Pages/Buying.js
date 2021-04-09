@@ -54,7 +54,7 @@ class Buying extends React.Component{
         this.state={
             buyingForm:{
                 posting_datetime: new Date(),
-                status:'Draft',
+                status:'',
                 supplier:'',
                 items:[],
             },
