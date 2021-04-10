@@ -59,7 +59,7 @@ export default function Item() {
     const classes = useStyles();
     const [message, setMessage] = useState(false)
     const [itemList, setItemList] = useState([])
-    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true, packing:1})
+    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true, supplier:'', packing:1})
     const [itemFormStatus, setItemForm] = useState('Create')
     const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
@@ -102,6 +102,7 @@ export default function Item() {
 
     const handleSubmit = (e) =>{
         e.preventDefault()
+        console.log(itemObj)
         var csrftoken = getCookie('csrftoken')
         var url = 'http://127.0.0.1:8000/api/item-create/'
 
@@ -119,7 +120,12 @@ export default function Item() {
     }
 
     const itemCreate = (e) =>{
-        setItem({...itemObj, [e.target.id]:e.target.value})
+        if(itemFormStatus === 'View'){
+            setItemForm('Edit')
+            setItem({...itemObj, [e.target.id]:e.target.value})
+        }else{
+            setItem({...itemObj, [e.target.id]:e.target.value})
+        }
     }
 
     const handleEdit = (e) =>{
@@ -145,18 +151,19 @@ export default function Item() {
         setSelectedRow('')
         setMarkup(0)
         setMargin(0)
-        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', enable:true, packing:1})
+        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', supplier:'', enable:true, packing:1})
     }
 
     
     const viewItemHandler = (e, item) => {
+        console.log(item.supplier)
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
             setSelectedRow(item.id)
             setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
             setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing, supplier:item.supplier})
             setItemForm('View')
             }, 200)
         }
@@ -164,7 +171,7 @@ export default function Item() {
             setSelectedRow(item.id)
             setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
             setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing})
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing, supplier:item.supplier})
             setItemForm('Edit')
         }
         
@@ -288,6 +295,9 @@ export default function Item() {
                         </Grid>
                         <Grid item xs={4}>
                         <FormControlLabel control={<Checkbox color={'primary'} onChange={() => handleCheckChange()} checked={itemObj.enable}/>} label='Enable'/>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <TextField fullWidth id='supplier' onChange={(e) => {itemCreate(e)}} size='small' value={itemObj.supplier} variant='outlined' label='Supplier'></TextField>
                         </Grid>
                         {itemFormStatus === 'Create' ? (
                         <Grid container item style={{paddingTop:20}} spacing={1}>

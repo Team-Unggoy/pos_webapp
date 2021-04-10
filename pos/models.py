@@ -36,6 +36,7 @@ class PurchaseOrderItem(models.Model):
     modified= models.DateTimeField(auto_now=True)
     purchase_order_number = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+    barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
 
@@ -77,6 +78,7 @@ class PurchaseReceiptItem(models.Model):
     modified = models.DateTimeField(auto_now=True)
     purchase_receipt_number = models.ForeignKey(PurchaseReceipt, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+    barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
 
@@ -92,6 +94,7 @@ class Item(models.Model):
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     packing = models.PositiveIntegerField(default=1)
+    supplier = models.CharField(max_length=100, blank=True)
 
     class Meta:
         ordering = ['-modified']

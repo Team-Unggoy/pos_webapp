@@ -35,7 +35,6 @@ def ItemDetail(request, pk):
 @api_view(['POST'])
 def ItemCreate(request):
     print('POST TESTING', request.data['name'])
-
     serializer = ItemSerializer(data=request.data)
     print(serializer)
     if serializer.is_valid():
@@ -87,3 +86,17 @@ def PurchaseReceiptCreate(request):
         serializer.save()
 
     return Response(serializer.data)
+
+@api_view(['GET'])
+def ActiveItems(request):
+    items = Item.objects.filter(enable=True)
+    serializer = ItemSerializer(items, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def ItemsUnderSupplier(request, supplier):
+    items = Item.objects.filter(supplier=supplier, enable=True)
+    serializer = ItemSerializer(items, many=True)
+    print(serializer)
+    return Response(serializer.data)
+    

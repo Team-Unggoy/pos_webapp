@@ -5,9 +5,8 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { Button } from 'semantic-ui-react'
+import Button  from '@material-ui/core/Button'
 import DeleteIcon from '@material-ui/icons/Delete';
-import { Search } from 'semantic-ui-react'
 import Grid from '@material-ui/core/Grid';
 import _ from 'lodash'
 import { withStyles } from '@material-ui/styles';
@@ -15,17 +14,23 @@ import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField';
 import { Typography } from '@material-ui/core';
+import InputAdornment from '@material-ui/core/InputAdornment'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem';
+import SearchIcon from "@material-ui/icons/Search";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl'
 
 const styles = theme => ({
     root: {
-        flexGrow: 1,
+        
       },
 
     searchForm:{
-        marginLeft: 15,
-        paddingTop: 15,
-        paddingBottom: 15,
-        backgroundColor:'#D6D6D6'
+        backgroundColor:'#D6D6D6',
+        minHeight:125,
+        marginTop:20,
+        margin:15,
     },
 
     search:{
@@ -33,18 +38,19 @@ const styles = theme => ({
     },
     paper: {
         padding:5,
+        margin:15,
         textAlign: 'center',
         backgroundColor:'#D6D6D6'
       },
     form:{
-        height:700,
-        margin:5,
-        marginLeft:30,
+        minHeight:650,
+        margin:15,
+        marginLeft:15,
         backgroundColor:'#D6D6D6',
         padding:5
     },
     table:{
-        minHeight:700
+        minHeight:600
     },
   });
 
@@ -58,16 +64,18 @@ class Buying extends React.Component{
                 supplier:'',
                 items:[],
             },
-            value:'',
-            itemDropDown:[],
-            isLoading:false,
-            results:[],
+
+            search:'',
+            itemList:[],
+            columnToQuery:'name',
+
+
+
         }
         
         this.fetchItem = this.fetchItem.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
-        this.handleSearchChange = this.handleSearchChange.bind(this)
-
+        this.getItemsUnderSupplier = this.getItemsUnderSupplier.bind(this)
 
     }
 
@@ -104,6 +112,8 @@ class Buying extends React.Component{
                     supplier:'',
                     items:[],
                 },
+                
+
             })
         }
 
@@ -139,12 +149,12 @@ class Buying extends React.Component{
         }
 
         fetchItem(){
-            var url = 'http://127.0.0.1:8000/api/item-list/'
+            var url = 'http://127.0.0.1:8000/api/item-list-active/'
 
             fetch(url)
             .then(response => response.json())
             .then(data => this.setState({
-                itemDropDown:data
+                itemList:data
             }))
         }
 
@@ -183,36 +193,6 @@ class Buying extends React.Component{
                 posting_datetime:date
             })
         }
-
-        handleSearchChange = (e, {value}) => {
-
-        const itemList = this.state.itemDropDown.map((row, index)=>({
-            key: index,
-            title: row.name,
-            description: row.srp,
-            price: row.cost,
-            srp:row.srp,
-            
-        }));    
-            this.setState({
-                isLoading: true, value
-            })
-            setTimeout(() => {
-            if(this.state.value.length < 1)return this.setState({
-                isLoading:false,
-                results:[],
-                value:'',
-                })
-
-                const re = new RegExp(_.escapeRegExp(this.state.value), 'i')
-                const isMatch = (result) => re.test(result.title)
-                this.setState({
-                  isLoading: false,
-                  results: _.filter(itemList, isMatch),
-                })
-            }, 300);
-        }
-        
 
         handleResultSelect = (e, {result}) =>{
             // check if item is already in list
@@ -283,6 +263,69 @@ class Buying extends React.Component{
                 
             })
         }
+
+        handleSelect = (e) => {
+            this.setState({
+                columnToQuery:e.target.value
+            })
+        }
+
+        selectItemHandler = (e, item) => {
+            console.log(this.state.buyingForm.items, item, 'testing')
+            const itemIndex = this.state.buyingForm.items.findIndex(
+                (list) => list.key === item.id                
+              );
+
+        if(itemIndex !== -1){
+        this.setState(prevState => ({
+            buyingForm:{
+                ...this.state.buyingForm,
+                items:prevState.buyingForm.items.map(
+                
+                    el => el.key === item.id? { ...el, qty:parseInt(el.qty) +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
+                ),
+            },    
+            }))
+        }
+        else{
+            const obj = {key: item.id, name:item.name, barcode:item.barcode_number, qty:1, buyingRate:item.cost}
+            this.setState(() => ({
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    items:[
+                        ...this.state.buyingForm.items,
+                        obj,
+                    ],
+                }
+            }))
+        }
+            
+        }
+
+        getItemsUnderSupplier = () => {
+            console.log(this.state.buyingForm.supplier)
+            var url = `http://127.0.0.1:8000/api/item-list-supplier/${this.state.buyingForm.supplier}/`
+            fetch(url)
+            .then(response => response.json())
+            .then(response =>  {
+                let list = []
+                response.map((item, key) => {
+                    const obj = {'key':item.id, 'name': item.name, 'barcode':item.barcode_number, 'buyingRate':parseFloat(item.cost).toFixed(2), 'qty':1}
+                    list.push(obj)
+                    return list
+                })
+                console.log(list, 'testing new lsit')
+                this.setState(prevState =>({
+                buyingForm:{
+                    ...this.state.buyingForm,
+                    items:list,
+                }
+            }))}
+            )
+            
+            
+            
+        }
         
         
 
@@ -292,29 +335,108 @@ class Buying extends React.Component{
     render(){
         const { classes } = this.props;
         const qty_total = this.state.buyingForm.items.reduce((qty_total, current) => qty_total + parseInt(current.qty),0)
-        const list_total = this.state.buyingForm.items.reduce((list_total,current) => list_total + current.total, 0)
-        list_total.toFixed(2)
+        const list_total = this.state.buyingForm.items.reduce((list_total,current) => list_total + (current.buyingRate*current.qty), 0)
         console.log(this.state.buyingForm)
 
         return(
      
             <>
-    
-            <div className={classes.root}>
-            <Grid container className={classes.search} spacing={1}>
-            <Paper className={classes.searchForm}>
-            <Grid item xs={4}>
-            <TextField style={{marginBottom:10}} label="DATE" variant='outlined' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
-            </Grid>
-            <Grid item xs={4}>
 
-            <Search className='searchbar' size='big' input={{ icon: 'search', iconPosition: 'left' }} loading={this.state.isLoading} onResultSelect={this.handleResultSelect}
-            onSearchChange={_.debounce(this.handleSearchChange, 500, { leading: true, })} results={this.state.results} value={this.state.value} />
+            <Grid container spacing={1}>
+                <Grid item xs={6}>
+                    <Paper className={classes.searchForm}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField style={{margin:10}} label="Date" variant='outlined' size='small' className='date' type='datetime-local' onChange={this.handleDateChange} value={this.state.buyingForm.posting_datetime}></TextField>
+                            </Grid>
+
+                        </Grid>
+                        <Grid container spacing={2}>
+                            <Grid item xs={4}>
+                                <TextField style={{margin:10}}  label='Supplier' variant='outlined' size='small' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                            </Grid>
+                            <Grid item xs={5}>
+                                <Button color='primary' variant='contained' onClick={(e) => this.getItemsUnderSupplier()} style={{margin:10}}>Get Items Under Supplier</Button>
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
+
+                <Grid item xs={6}>
+                    <Paper className={classes.searchForm}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField label='Total Amount' style={{margin:10}} size='small' disabled variant='outlined' value={list_total.toFixed(2)}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField label='Total Qty' style={{margin:10}} size='small' disabled variant='outlined' value={qty_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
+                            </Grid>
+                        </Grid>
+
+                        <Grid container spacing={2}>
+                            <Grid item xs={4}>
+                            {this.state.buyingForm.items.length > 0 ? (
+                            <Button fullWidth style={{margin:10}} variant="contained" type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} color='primary'> Submit</Button>)
+                            :<Button fullWidth style={{margin:10}} variant="contained" basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>}
+                            </Grid>
+                        </Grid>
+                    </Paper>
+                </Grid>
             </Grid>
 
-            </Paper>
-            </Grid>
             <Grid container spacing={2}>
+            <Grid item xs={6}> 
+                <Paper className={classes.paper}>
+                <Grid container style={{padding:5}} spacing={2}>
+                    <Grid item xs={6}>
+                        <TextField type="search" onChange={(e) => this.setState({search:e.target.value})} value={this.state.search} label='SEARCH' size='small' fullWidth variant='outlined' InputProps={{startAdornment: (
+                        <InputAdornment position="start">
+                        <SearchIcon />
+                        </InputAdornment>)}}/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <FormControl fullWidth variant='outlined' size='small'>
+                        <Select onChange={(e) => this.handleSelect(e)} fullWidth variant='outlined'>
+                            <MenuItem value='name'>Name</MenuItem>
+                            <MenuItem value='barcode_number'>Barcode</MenuItem>
+                            <MenuItem value='cost'>Buying</MenuItem>
+                            <MenuItem value='srp'>Selling</MenuItem>
+                        </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
+                <TableContainer className={classes.table}>
+                    <Table stickyHeader aria-label="sticky table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Item Name</TableCell>
+                                <TableCell>Barcode</TableCell>
+                                <TableCell>Buying</TableCell>
+                                <TableCell>Selling</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {this.state.itemList.filter((val) => {
+                        if(this.state.search === ''){
+                            return val
+                        }else if(val[this.state.columnToQuery].toLowerCase().includes(this.state.search.toLowerCase())){
+                            return val}
+                    }).map((item,key) =>(
+                        <TableRow className={classes.tableRow} onClick={(e) => this.selectItemHandler(e, item)} key={item.id} hover>
+                           <TableCell>{item.name}</TableCell>
+                           <TableCell>{item.barcode_number}</TableCell>
+                           <TableCell>{item.cost}</TableCell>
+                           <TableCell>{item.srp}</TableCell>
+                           
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                </TableContainer>
+                </Paper>
+                </Grid>
+
+
             <Grid item xs={6}>
             <Paper className={classes.form}>
 
@@ -331,13 +453,13 @@ class Buying extends React.Component{
                     </TableHead>
                     <TableBody>
                         
-                        {this.state.buyingForm.items.map((row, index) =>(
+                        {this.state.buyingForm.items.map((item, index) =>(
                             <TableRow hover key={index}>
-                                <TableCell>{row.name}</TableCell>
-                                <TableCell size='small'><TextField type='number' value={row.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, row)}} /></TableCell>
-                                <TableCell align='right'>{row.cost}</TableCell>
-                                <TableCell align='right'>{row.total}</TableCell>
-                                <TableCell><DeleteIcon onClick={() => {this.deleteItem(row,index)}}/></TableCell>
+                                <TableCell>{item.name}</TableCell>
+                                <TableCell size='small'><TextField type='number' value={item.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, item)}} /></TableCell>
+                                <TableCell>{item.buyingRate}</TableCell>
+                                <TableCell>{(item.buyingRate*item.qty).toFixed(2)}</TableCell>
+                                <TableCell><DeleteIcon onClick={() => {this.deleteItem(item,index)}}/></TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -345,53 +467,8 @@ class Buying extends React.Component{
                     </TableContainer>
                 </Paper>
                 </Grid>
-
-
-            <Grid item xs={5}>
-            <Paper className={classes.form}>
-
-            <Grid container spacing={2}>        
-                <Grid item xs={12}>   
-                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Information</Typography>
-                </Grid>                   
-                <Grid item>
-                    <TextField label='SUPPLIER' placeholder='Supplier' variant='outlined' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
-                </Grid>
-                <Grid item>
-                    <TextField label='STATUS' disabled variant='outlined' value={this.state.buyingForm.status} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
-                </Grid>
             </Grid>
-            
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Summary</Typography>
-                </Grid>
-                <Grid item>
-                    <TextField label='GRAND TOTAL' disabled variant='outlined' value={list_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
-                </Grid>
 
-                <Grid item>
-                    <TextField label='TOTAL QUANTITY' disabled variant='outlined' value={qty_total}  inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white'}}}></TextField>
-                </Grid>
-
-            </Grid>
-            
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                <Typography variant="h1" style={{fontSize:30,textAlign:'left',borderRadius:10, color:'#333533',backgroundColor:'#ffd100'}} noWrap>Action</Typography>
-                </Grid>
-
-                <Grid item>
-                {this.state.buyingForm.items.length > 0 ? (
-                <Button variant="contained" type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            ):<Button variant="contained" basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>
-            }
-                </Grid>
-            </Grid>
-</          Paper>
-            </Grid>
-            </Grid>
-            </div>
             
             
             </>

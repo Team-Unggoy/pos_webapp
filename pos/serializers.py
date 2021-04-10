@@ -4,7 +4,7 @@ from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, Pur
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = ['id','name', 'cost', 'srp', 'barcode_number', 'enable', 'packing', 'modified','creation']
+        fields = ['id','name', 'cost', 'srp', 'barcode_number', 'enable', 'supplier', 'packing', 'modified','creation']
 
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
