@@ -61,6 +61,7 @@ def ItemDelete(request,pk):
 @api_view(['POST'])
 def PurchaseOrderCreate(request):
     serializer = PurchaseOrderSerializer(data=request.data)
+    print(serializer.is_valid())
     if serializer.is_valid():
         serializer.save()
     

@@ -176,7 +176,7 @@ class Buying extends React.Component{
                     buyingForm:{
                         ...this.state.buyingForm,
                         posting_datetime: new Date(),
-                        status:'Draft',
+                        status:'',
                         supplier:'',
                         items:[],
                     }
@@ -194,48 +194,12 @@ class Buying extends React.Component{
             })
         }
 
-        handleResultSelect = (e, {result}) =>{
-            // check if item is already in list
-            const itemIndex = this.state.buyingForm.items.findIndex(
-                (item) => item.key === result.key
-                
-              );
-            if(itemIndex !== -1){
-                this.setState(prevState => ({
-                    value:'',
-                    buyingForm:{
-                        ...this.state.buyingForm,
-                        items:prevState.buyingForm.items.map(
-                        
-                            el => el.key === result.key? { ...el, qty:parseInt(el.qty) +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
-                        ),
-                    },    
-                }))
-            }
-            else{
-            const obj = {'key':result.key, 'name': result.title, 'cost':parseFloat(result.price).toFixed(2), 'qty':1, 'total':parseFloat(result.price).toFixed(2) * 1}
-
-            this.setState(() =>({
-                buyingForm:{
-                    ...this.state.buyingForm,
-                    items:[
-                        ...this.state.buyingForm.items,
-                        obj,
-                    ],
-                },
-                value:'',
-
-                
-            }))
-        }
-        }
-
         qtyHandle = (event, row) => {
             this.setState(prevState => ({
                 buyingForm:{
                     ...this.state.buyingForm,
                     items:prevState.buyingForm.items.map(
-                            el => el.key === row.key? { ...el, qty: parseInt(event.target.value), total: event.target.value * parseFloat(el.cost).toFixed(2)}: el
+                            el => el.key === row.key? { ...el, qty: parseInt(event.target.value)}: el
                         ),
                 }
                
@@ -282,13 +246,13 @@ class Buying extends React.Component{
                 ...this.state.buyingForm,
                 items:prevState.buyingForm.items.map(
                 
-                    el => el.key === item.id? { ...el, qty:parseInt(el.qty) +1, total:(el.qty+ 1) * parseFloat(el.cost).toFixed(2) }: el
+                    el => el.key === item.id? { ...el, qty:parseInt(el.qty) +1}: el
                 ),
             },    
             }))
         }
         else{
-            const obj = {key: item.id, name:item.name, barcode:item.barcode_number, qty:1, buyingRate:item.cost}
+            const obj = {key: item.id, name:item.name, barcode:item.barcode_number, qty:1, cost:item.cost}
             this.setState(() => ({
                 buyingForm:{
                     ...this.state.buyingForm,
@@ -310,7 +274,7 @@ class Buying extends React.Component{
             .then(response =>  {
                 let list = []
                 response.map((item, key) => {
-                    const obj = {'key':item.id, 'name': item.name, 'barcode':item.barcode_number, 'buyingRate':parseFloat(item.cost).toFixed(2), 'qty':1}
+                    const obj = {'key':item.id, 'name': item.name, 'barcode':item.barcode_number, 'cost':parseFloat(item.cost).toFixed(2), 'qty':1}
                     list.push(obj)
                     return list
                 })
@@ -335,7 +299,7 @@ class Buying extends React.Component{
     render(){
         const { classes } = this.props;
         const qty_total = this.state.buyingForm.items.reduce((qty_total, current) => qty_total + parseInt(current.qty),0)
-        const list_total = this.state.buyingForm.items.reduce((list_total,current) => list_total + (current.buyingRate*current.qty), 0)
+        const list_total = this.state.buyingForm.items.reduce((list_total,current) => list_total + (current.cost*current.qty), 0)
         console.log(this.state.buyingForm)
 
         return(
@@ -356,7 +320,11 @@ class Buying extends React.Component{
                                 <TextField style={{margin:10}}  label='Supplier' variant='outlined' size='small' onChange={this.handleSupplier} value={this.state.buyingForm.supplier} inputProps={{ style: { fontSize:15,color: 'black', borderColor:'white', borderSpacing:5}}}></TextField>
                             </Grid>
                             <Grid item xs={5}>
+                                {this.state.buyingForm.supplier === '' ? (
+                                <Button color='primary' disabled variant='contained' onClick={(e) => this.getItemsUnderSupplier()} style={{margin:10}}>Get Items Under Supplier</Button>
+                                ):(
                                 <Button color='primary' variant='contained' onClick={(e) => this.getItemsUnderSupplier()} style={{margin:10}}>Get Items Under Supplier</Button>
+                                )}
                             </Grid>
                         </Grid>
                     </Paper>
@@ -457,8 +425,8 @@ class Buying extends React.Component{
                             <TableRow hover key={index}>
                                 <TableCell>{item.name}</TableCell>
                                 <TableCell size='small'><TextField type='number' value={item.qty} fullWidth variant='standard' size='small' onChange={(e) => {this.qtyHandle(e, item)}} /></TableCell>
-                                <TableCell>{item.buyingRate}</TableCell>
-                                <TableCell>{(item.buyingRate*item.qty).toFixed(2)}</TableCell>
+                                <TableCell>{item.cost}</TableCell>
+                                <TableCell>{(item.cost*item.qty).toFixed(2)}</TableCell>
                                 <TableCell><DeleteIcon onClick={() => {this.deleteItem(item,index)}}/></TableCell>
                             </TableRow>
                         ))}

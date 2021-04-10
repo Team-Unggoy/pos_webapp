@@ -9,7 +9,7 @@ class ItemSerializer(serializers.ModelSerializer):
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['id','name', 'qty', 'cost']
+        fields = ['id','name', 'barcode_number', 'qty', 'cost']
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     items = PurchaseOrderItemSerializer(many=True)

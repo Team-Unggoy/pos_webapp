@@ -11,7 +11,7 @@ class PurchaseOrder(models.Model):
     posting_datetime = models.DateTimeField(blank=True)
     purchase_order_number = models.CharField(primary_key=True ,max_length=255, blank=True, null=False, default=None)
     supplier = models.CharField(max_length=100, blank=True, default=None)
-    status = models.CharField(max_length=100, default='None')
+    status = models.CharField(max_length=100, blank=True, default='Draft')
 
     class Meta:
         ordering = ['-modified']
@@ -21,7 +21,7 @@ class PurchaseOrder(models.Model):
             prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
             prev_instances = self.__class__.objects.filter(purchase_order_number__contains=prefix)
             if prev_instances.exists():
-                last_instance_id = prev_instances.last().purchase_order_number[-4:]
+                last_instance_id = prev_instances.first().purchase_order_number[-4:]
                 self.purchase_order_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
             else:
                 self.purchase_order_number = prefix+'{0:04d}'.format(1)

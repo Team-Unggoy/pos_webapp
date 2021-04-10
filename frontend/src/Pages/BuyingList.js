@@ -14,6 +14,8 @@ import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
+import TablePagination from '@material-ui/core/TablePagination';
+
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -31,17 +33,20 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor:'#d6d6d6'
     },
     table:{
+        minHeight:250,
         margin:10,
         marginLeft:55,
         marginRight:25,
         backgroundColor:'#d6d6d6',
-        minHeight:700,
+        
     }
 }))
 
 export default function BuyingList() {
     const classes = useStyles();
     const history = useHistory();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [search, setSearch] = useState('')
     const [purchaseOrderList, setPurchaseOrderList] = useState([])
     useEffect(() => {
@@ -72,6 +77,15 @@ export default function BuyingList() {
         return total.toFixed(2)
     }
 
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage)
+    }
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(+event.target.value);
+        setPage(0);
+      };
+
     return(
         <>
         <Grid container direction="row-reverse">
@@ -94,7 +108,7 @@ export default function BuyingList() {
         <Grid container>
             <Grid item xs={12}>
             <Paper className={classes.table}>
-                <TableContainer>
+                <TableContainer style={{maxHeight:650}}>
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -117,11 +131,11 @@ export default function BuyingList() {
                                     <TableCell>{item.status}</TableCell>
                                     <TableCell></TableCell>
                                     <TableCell>{getTotalAmount(item)}</TableCell>
-
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                    
                 </TableContainer>
             </Paper>
             </Grid>
