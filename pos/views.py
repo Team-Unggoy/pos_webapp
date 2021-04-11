@@ -68,10 +68,14 @@ def PurchaseOrderCreate(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def purchaseOrderList(request):
+def PurchaseOrderList(request):
     purchaseorders = PurchaseOrder.objects.all()
     serializer = PurchaseOrderSerializer(purchaseorders, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def PurchaseOrderDetailView(request, pk):
+    print('testing')
 
 @api_view(['GET'])
 def submittedPurchaseOrderList(request):

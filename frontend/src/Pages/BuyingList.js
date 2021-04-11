@@ -17,6 +17,8 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TablePagination from '@material-ui/core/TablePagination';
 
+import PurchaseOrderDetail from './PurchaseOrderDetail'
+
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -63,10 +65,10 @@ export default function BuyingList() {
 
     const handleSearch = (e) => {
         setSearch(e.target.value)
+        setPage(0)
     }
 
     const handleCreateNew = (e) =>{
-        console.log(e)
         history.push('/buying')
     }
 
@@ -86,6 +88,11 @@ export default function BuyingList() {
         setRowsPerPage(+event.target.value);
         setPage(0);
       };
+
+    const handleView = (e, item) => {
+        console.log(item)
+        history.push(`/buying/${item.purchase_order_number}`)
+    }
 
     return(
         <>
@@ -127,7 +134,7 @@ export default function BuyingList() {
                                 }else if(val['purchase_order_number'].toLowerCase().includes(search.toLowerCase())){
                                     return val}
                             }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, key) => (
-                                <TableRow key={key} hover>
+                                <TableRow onClick={(e) => handleView(e, item)} key={key} hover>
                                     <TableCell>{item.purchase_order_number}</TableCell>
                                     <TableCell>{item.status}</TableCell>
                                     <TableCell></TableCell>
@@ -138,7 +145,7 @@ export default function BuyingList() {
                         {search === '' ? (
                         <TableFooter>
                              <TableRow>
-                                 <TablePagination colSpan={0} count={purchaseOrderList.length} rowsPerPage={rowsPerPage} page={page} onChangePage={handleChangePage}/>
+                                 <TablePagination colSpan={0} count={purchaseOrderList.length} rowsPerPage={rowsPerPage} page={page} onChangeRowsPerPage={handleChangeRowsPerPage} onChangePage={handleChangePage}/>
                              </TableRow>
                         </TableFooter>
                         ): (

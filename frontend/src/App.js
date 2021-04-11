@@ -9,6 +9,7 @@ import POS from './Pages/POS'
 import BuyingList from './Pages/BuyingList'
 import React from 'react'
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom'
+import PurchaseOrderDetail from './Pages/PurchaseOrderDetail';
 
 class App extends React.Component{
   constructor(props){
@@ -24,6 +25,7 @@ class App extends React.Component{
           <Route path='/'  exact component={Home}/>
           <Route path='/buying' exact component={Buying}/>
           <Route path='/buyingList' exact component={BuyingList}/>
+          <Route path='/buying/:purchase_order_number' exact component={PurchaseOrderDetail}/>
           <Route path='/item' exact component={Item}/>
           <Route path='/receive' exact component={Receive}/>
           <Route path='/pos' exact component={POS}/>
