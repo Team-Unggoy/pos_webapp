@@ -12,6 +12,7 @@ import TableContainer from '@material-ui/core/TableContainer'
 import Table from '@material-ui/core/Table'
 import TableHead from '@material-ui/core/TableHead'
 import TableBody from '@material-ui/core/TableBody'
+import TableFooter from '@material-ui/core/TableFooter'
 import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TablePagination from '@material-ui/core/TablePagination';
@@ -125,7 +126,7 @@ export default function BuyingList() {
                                     return val
                                 }else if(val['purchase_order_number'].toLowerCase().includes(search.toLowerCase())){
                                     return val}
-                            }).map((item, key) => (
+                            }).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, key) => (
                                 <TableRow key={key} hover>
                                     <TableCell>{item.purchase_order_number}</TableCell>
                                     <TableCell>{item.status}</TableCell>
@@ -134,6 +135,17 @@ export default function BuyingList() {
                                 </TableRow>
                             ))}
                         </TableBody>
+                        {search === '' ? (
+                        <TableFooter>
+                             <TableRow>
+                                 <TablePagination colSpan={0} count={purchaseOrderList.length} rowsPerPage={rowsPerPage} page={page} onChangePage={handleChangePage}/>
+                             </TableRow>
+                        </TableFooter>
+                        ): (
+                        <TableFooter>
+                        </TableFooter>
+                        )}
+                       
                     </Table>
                     
                 </TableContainer>
