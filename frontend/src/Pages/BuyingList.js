@@ -17,8 +17,6 @@ import TableRow from '@material-ui/core/TableRow'
 import TableCell from '@material-ui/core/TableCell'
 import TablePagination from '@material-ui/core/TablePagination';
 
-import PurchaseOrderDetail from './PurchaseOrderDetail'
-
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -90,7 +88,6 @@ export default function BuyingList() {
       };
 
     const handleView = (e, item) => {
-        console.log(item)
         history.push(`/buying/${item.purchase_order_number}`)
     }
 

@@ -75,7 +75,10 @@ def PurchaseOrderList(request):
 
 @api_view(['GET'])
 def PurchaseOrderDetailView(request, pk):
-    print('testing')
+
+    purchaseorder = PurchaseOrder.objects.get(purchase_order_number=pk)
+    serializer = PurchaseOrderSerializer(purchaseorder)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 def submittedPurchaseOrderList(request):
@@ -90,14 +93,6 @@ def PurchaseReceiptCreate(request):
     if serializer.is_valid():
         serializer.save()
 
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def PurchaseOrderLatest(request):
-    purchaseorders = PurchaseOrder.objects.latest('purchase_order_number')
-    print(purchaseorders, 'babantoto')
-    serializer = PurchaseReceiptSerializer(purchaseorders, many=False)
-    print(serializer.data, 'testing sa ko diri daw')
     return Response(serializer.data)
     
 

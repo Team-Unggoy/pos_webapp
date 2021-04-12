@@ -18,7 +18,7 @@ class PurchaseOrder(models.Model):
 
     def save(self,*args, **kwargs):
         if not self.purchase_order_number:
-            self.status = 'Draft'
+            self.status = 'Submitted'
             prefix = 'PO-{}'.format(timezone.now().strftime('%y%m%d'))
             prev_instances = self.__class__.objects.filter(purchase_order_number__contains=prefix)
             if prev_instances.exists():

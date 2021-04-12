@@ -8,7 +8,6 @@ import TableRow from '@material-ui/core/TableRow';
 import Button  from '@material-ui/core/Button'
 import DeleteIcon from '@material-ui/icons/Delete';
 import Grid from '@material-ui/core/Grid';
-import _ from 'lodash'
 import { withStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import Paper from '@material-ui/core/Paper'
@@ -343,8 +342,8 @@ class Buying extends React.Component{
                         <Grid container spacing={2}>
                             <Grid item xs={4}>
                             {this.state.buyingForm.items.length > 0 ? (
-                            <Button fullWidth style={{margin:10}} variant="contained" type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} color='primary'> Submit</Button>)
-                            :<Button fullWidth style={{margin:10}} variant="contained" basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Submit</Button>}
+                            <Button fullWidth style={{margin:10}} variant="contained" type='button' color='yellow' onClick={(e) => this.handleSubmit(e)} color='primary'> Save</Button>)
+                            :<Button fullWidth style={{margin:10}} variant="contained" basic disabled color='yellow' type='button' onClick={(e) => this.handleSubmit(e)} primary> Save</Button>}
                             </Grid>
                         </Grid>
                     </Paper>
