@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Item, PurchaseOrder, PurchaseOrderItem
-from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer
+from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer, PurchaseOrderSerializerLatest
 
 # Create your views here.
 
@@ -64,7 +64,7 @@ def PurchaseOrderCreate(request):
     print(serializer.is_valid())
     if serializer.is_valid():
         serializer.save()
-    
+        
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -91,6 +91,15 @@ def PurchaseReceiptCreate(request):
         serializer.save()
 
     return Response(serializer.data)
+
+@api_view(['GET'])
+def PurchaseOrderLatest(request):
+    purchaseorders = PurchaseOrder.objects.latest('purchase_order_number')
+    print(purchaseorders, 'babantoto')
+    serializer = PurchaseReceiptSerializer(purchaseorders, many=False)
+    print(serializer.data, 'testing sa ko diri daw')
+    return Response(serializer.data)
+    
 
 @api_view(['GET'])
 def ActiveItems(request):

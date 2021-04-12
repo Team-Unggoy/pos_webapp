@@ -12,6 +12,7 @@ urlpatterns = [
     path('item-list-supplier/<str:supplier>/', views.ItemsUnderSupplier, name='item-list-supplier'),
 
     path('purchaseorder-list-submitted/', views.submittedPurchaseOrderList, name='purchaseorder-list-submitted'),
+    path('purchaseorder-latest/', views.PurchaseOrderLatest, name='purchaseorder-latest'),
 
     path('purchaseorder-create/', views.PurchaseOrderCreate, name='purchaseorder-create'),
     path('purchaseorder-list/', views.PurchaseOrderList, name='purchaseorder-list'),

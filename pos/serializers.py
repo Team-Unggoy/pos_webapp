@@ -23,6 +23,12 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
         for item in items:
             PurchaseOrderItem.objects.create(purchase_order_number=purchase_order_number, **item)
         return purchase_order_number
+    
+class PurchaseOrderSerializerLatest(serializers.ModelSerializer):
+    class Meta:
+        model = PurchaseOrder
+        fields = ['posting_datetime', 'supplier', 'status', 'items', 'purchase_order_number']
+        print('na human lugar ko diri')
 
 class PurchaseReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:

@@ -20,6 +20,8 @@ import MenuItem from '@material-ui/core/MenuItem';
 import SearchIcon from "@material-ui/icons/Search";
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl'
+import { useHistory } from "react-router-dom";
+
 
 const styles = theme => ({
     root: {
@@ -76,6 +78,7 @@ class Buying extends React.Component{
         this.fetchItem = this.fetchItem.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getItemsUnderSupplier = this.getItemsUnderSupplier.bind(this)
+        this.rerouteToPurchasOrder = this.rerouteToPurchasOrder.bind(this)
 
     }
 
@@ -171,19 +174,8 @@ class Buying extends React.Component{
 
                 },
                 'body' :JSON.stringify(this.state.buyingForm)
-            }).then((response) => {
-                this.setState({
-                    buyingForm:{
-                        ...this.state.buyingForm,
-                        posting_datetime: new Date(),
-                        status:'',
-                        supplier:'',
-                        items:[],
-                    }
-                })
-                var sumbitDate = new Date()
-                this.formatDate(sumbitDate)
-
+            }).then((response) => { response.json()
+                .then(response => this.rerouteToPurchasOrder(response['purchase_order_number']))
             })
         }
     
@@ -263,8 +255,15 @@ class Buying extends React.Component{
                 }
             }))
         }
+
+        
             
         }
+
+        rerouteToPurchasOrder = (purchaseOrder) => {
+                this.props.history.push(`/buying/${purchaseOrder}`)
+        }
+     
 
         getItemsUnderSupplier = () => {
             console.log(this.state.buyingForm.supplier)
