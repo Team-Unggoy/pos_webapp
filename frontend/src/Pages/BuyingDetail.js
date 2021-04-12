@@ -74,6 +74,24 @@ function BuyingDetail(props) {
         .then(response => setItemList(response))
     }
 
+    const formatDate = (date) =>{
+        var formatDate = new Date(date)
+        var year = formatDate.getFullYear();
+        var month = (1 + formatDate.getMonth()).toString();
+        month = month.length > 1 ? month : '0' + month;
+        var day = formatDate.getDate().toString();
+        day = day.length > 1 ? day : '0' + day;
+        var hour = (formatDate.getHours()).toString();
+        hour = hour.length > 1? hour :  '0' + hour;
+        var minute = formatDate.getMinutes().toString()
+        minute = minute.length > 1 ?  minute: '0' + minute;
+        var second = formatDate.getSeconds().toString();
+        second = second.length > 1 ?  second: '0' + second;
+        return year + '-' + month + '-' + day + 'T' + hour + ':' + minute + ':' + second
+
+    }
+    const totalPayment = purchaseOrder.items.reduce((total, current) => total + (current.qty * current.cost),0)
+    const totalQty = purchaseOrder.items.reduce((total, current) => total + current.qty ,0)
 
     return (
         <>
@@ -82,7 +100,7 @@ function BuyingDetail(props) {
                     <Paper className={classes.paperDetail}>
                         <Grid container spacing={2}>
                             <Grid item xs={6}>
-                                <TextField style={{margin:10}} fullWidth label="Date" variant='outlined' size='small' className='date' type='datetime-local'></TextField>
+                                <TextField style={{margin:10}} fullWidth label="Date" value={formatDate(purchaseOrder.posting_datetime)} variant='outlined' size='small' className='date' type='datetime-local'></TextField>
                             </Grid>
                             <Grid item xs={4}>
                                 <TextField style={{margin:10}} fullWidth label="Purchase Order" variant='outlined' size='small' value={purchaseOrder.purchase_order_number}></TextField>
@@ -104,16 +122,16 @@ function BuyingDetail(props) {
                     <Paper className={classes.paperDetail}>
                         <Grid container spacing={2}>
                             <Grid item xs={6}>
-                                <TextField label='Total Amount' style={{margin:10}} size='small' disabled variant='outlined'></TextField>
+                                <TextField label='Total Amount' read_only value={totalPayment} style={{margin:10}} size='small' variant='outlined'></TextField>
                             </Grid>
                             <Grid item xs={6}>  
-                                <TextField label='Total Qty' style={{margin:10}} size='small' disabled variant='outlined'></TextField>
+                                <TextField label='Total Qty' read_only value={totalQty} style={{margin:10}} size='small' variant='outlined'></TextField>
                             </Grid>
                         </Grid>
 
                         <Grid container spacing={2}>
                             <Grid item xs={4}>
-                                <Button fullWidth style={{margin:10}} variant="contained" type='button' color='yellow' color='primary'> Submit</Button>
+                                <Button fullWidth style={{margin:10}} variant="contained" type='button' color='secondary'> Cancel</Button>
                             </Grid>
                         </Grid>
                     </Paper>
