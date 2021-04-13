@@ -59,7 +59,7 @@ export default function Item() {
     const classes = useStyles();
     const [message, setMessage] = useState(false)
     const [itemList, setItemList] = useState([])
-    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true, supplier:'', packing:1})
+    const [itemObj, setItem] = useState({name:'', barcode_number:'', cost:'', srp:'', enable:true, supplier:''})
     const [itemFormStatus, setItemForm] = useState('Create')
     const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
@@ -151,7 +151,7 @@ export default function Item() {
         setSelectedRow('')
         setMarkup(0)
         setMargin(0)
-        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', supplier:'', enable:true, packing:1})
+        setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', supplier:'', enable:true})
     }
 
     
@@ -161,17 +161,17 @@ export default function Item() {
         if(e.detail === 1){
             timer = setTimeout(() => {
             setSelectedRow(item.id)
-            setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
-            setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing, supplier:item.supplier})
+            setMargin((((item.srp - (item.cost))/ item.srp)* 100).toFixed(2)+' %')
+            setMarkup((((item.srp - (item.cost))/item.cost) * 100).toFixed(2) +' %')
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, supplier:item.supplier})
             setItemForm('View')
             }, 200)
         }
         else{
             setSelectedRow(item.id)
-            setMargin((((item.srp - (item.cost/item.packing))/ item.srp)* 100).toFixed(2)+' %')
-            setMarkup((((item.srp - (item.cost/item.packing))/item.cost) * 100).toFixed(2) +' %')
-            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, packing:item.packing, supplier:item.supplier})
+            setMargin((((item.srp - (item.cost))/ item.srp)* 100).toFixed(2)+' %')
+            setMarkup((((item.srp - (item.cost))/item.cost) * 100).toFixed(2) +' %')
+            setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, supplier:item.supplier})
             setItemForm('Edit')
         }
         
@@ -283,9 +283,9 @@ export default function Item() {
                         <Grid item xs={8}>
                         <TextField id='barcode_number' onChange={(e) => {itemCreate(e)}} fullWidth variant='outlined' value={itemObj.barcode_number} label='Barcode'></TextField>
                         </Grid>
-                        <Grid item xs={4}>
+                        {/* <Grid item xs={4}>
                         <TextField id='packing' onChange={(e) => {itemCreate(e)}} type='number' fullWidth variant='outlined' value={itemObj.packing} label='Packing'></TextField>
-                        </Grid>
+                        </Grid> */}
                         <Grid container item spacing={1}>
                         <Grid item xs={4}>
                         <TextField fullWidth id='cost' size='small' onChange={(e) => {itemCreate(e)}} type='number' value={itemObj.cost} variant='outlined' label='Buying'></TextField>

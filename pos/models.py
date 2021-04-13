@@ -98,7 +98,6 @@ class Item(models.Model):
     enable = models.BooleanField(default=True)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    packing = models.PositiveIntegerField(default=1)
     supplier = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -118,7 +117,8 @@ class StockTransaction(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(blank=True)
-    transaction_type = models.CharField(max_length=100)
-    itemid = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item_id = models.ForeignKey(Item, on_delete=models.CASCADE)
     qty = models.IntegerField(default=0)
+    voucher_no = models.CharField(max_length=100)
+
     
