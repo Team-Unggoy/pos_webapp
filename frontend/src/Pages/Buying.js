@@ -190,7 +190,7 @@ class Buying extends React.Component{
                 buyingForm:{
                     ...this.state.buyingForm,
                     items:prevState.buyingForm.items.map(
-                            el => el.key === row.key? { ...el, qty: parseInt(event.target.value)}: el
+                            el => el.item === row.item? { ...el, qty: parseInt(event.target.value)}: el
                         ),
                 }
                
@@ -228,7 +228,7 @@ class Buying extends React.Component{
         selectItemHandler = (e, item) => {
             console.log(this.state.buyingForm.items, item, 'testing')
             const itemIndex = this.state.buyingForm.items.findIndex(
-                (list) => list.key === item.id                
+                (list) => list.item === item.id                
               );
 
         if(itemIndex !== -1){
@@ -237,13 +237,13 @@ class Buying extends React.Component{
                 ...this.state.buyingForm,
                 items:prevState.buyingForm.items.map(
                 
-                    el => el.key === item.id? { ...el, qty:parseInt(el.qty) +1}: el
+                    el => el.item === item.id? { ...el, qty:parseInt(el.qty) +1}: el
                 ),
             },    
             }))
         }
         else{
-            const obj = {key: item.id, name:item.name, barcode:item.barcode_number, qty:1, cost:item.cost}
+            const obj = {item: item.id, name:item.name, barcode_number:item.barcode_number, qty:1, cost:item.cost}
             this.setState(() => ({
                 buyingForm:{
                     ...this.state.buyingForm,
@@ -272,7 +272,7 @@ class Buying extends React.Component{
             .then(response =>  {
                 let list = []
                 response.map((item, key) => {
-                    const obj = {'key':item.id, 'name': item.name, 'barcode':item.barcode_number, 'cost':parseFloat(item.cost).toFixed(2), 'qty':1}
+                    const obj = {'item':item.id, 'name': item.name, 'barcode_number':item.barcode_number, 'cost':parseFloat(item.cost).toFixed(2), 'qty':1}
                     list.push(obj)
                     return list
                 })

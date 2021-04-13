@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, PurchaseReceiptItem
+from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, PurchaseReceiptItem, StockTransaction
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,7 +9,7 @@ class ItemSerializer(serializers.ModelSerializer):
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrderItem
-        fields = ['id','name', 'barcode_number', 'qty', 'cost']
+        fields = ['id','name', 'barcode_number', 'qty', 'cost', 'item']
 
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     items = PurchaseOrderItemSerializer(many=True)
@@ -19,8 +19,10 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items = validated_data.pop('items')
+        print(items, 'testing sa ko baban')
         purchase_order_number = PurchaseOrder.objects.create(**validated_data)
         for item in items:
+            print(item)
             PurchaseOrderItem.objects.create(purchase_order_number=purchase_order_number, **item)
         return purchase_order_number
     
@@ -32,7 +34,7 @@ class PurchaseOrderSerializerLatest(serializers.ModelSerializer):
 class PurchaseReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseReceiptItem
-        fields = ['id', 'name', 'qty', 'cost']
+        fields = ['id','name', 'barcode_number', 'qty', 'cost', 'item']
 
 class PurchaseReceiptSerializer(serializers.ModelSerializer):
     items = PurchaseReceiptItemSerializer(many=True)
@@ -45,6 +47,7 @@ class PurchaseReceiptSerializer(serializers.ModelSerializer):
         purchase_receipt_number = PurchaseReceipt.objects.create(**validated_data)
         PurchaseOrder.objects.filter(purchase_order_number=validated_data['purchase_order_number']).update(is_received=True)
         for item in items:
+            print(item)
             PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, purchase_order_number=validated_data['purchase_order_number'], **item)
         return purchase_receipt_number
         

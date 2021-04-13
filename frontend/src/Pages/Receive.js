@@ -154,6 +154,7 @@ export default function Receive() {
             setPurchaseReceiptForm({...purchaseReceiptForm ,purchase_order_number:'' ,supplier:'', status:'', items:[], invoice_amount:0})
         }
 
+
     }
 
 
@@ -202,7 +203,7 @@ export default function Receive() {
     const qtyTotal = itemList.items.reduce((total, current) => total + (current.qty),0)
 
     
-    
+    console.log(purchaseReceiptForm.items)
 
     return(
         <div>

@@ -5,6 +5,22 @@ from django.utils import timezone
 
 # Create your models here.
 
+class Item(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=100)
+    barcode_number = models.CharField(max_length=13, blank=True)
+    enable = models.BooleanField(default=True)
+    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    supplier = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        ordering = ['-modified']
+
+    def __str__(self):
+        return(self.name)
+
 class PurchaseOrder(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -39,6 +55,7 @@ class PurchaseOrderItem(models.Model):
     modified= models.DateTimeField(auto_now=True)
     purchase_order_number = models.ForeignKey(PurchaseOrder, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+    item = models.ForeignKey(Item, blank=True, default=None, on_delete=models.CASCADE)
     barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
@@ -83,6 +100,7 @@ class PurchaseReceiptItem(models.Model):
     purchase_receipt_number = models.ForeignKey(PurchaseReceipt, related_name='items', on_delete=models.CASCADE)
     purchase_order_number = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
+    item = models.ForeignKey(Item, blank=True, default=None, on_delete=models.CASCADE)
     barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
@@ -90,21 +108,7 @@ class PurchaseReceiptItem(models.Model):
     def __str__(self):
         return(self.name)
     
-class Item(models.Model):
-    creation = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-    name = models.CharField(max_length=100)
-    barcode_number = models.CharField(max_length=13, blank=True)
-    enable = models.BooleanField(default=True)
-    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    srp = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    supplier = models.CharField(max_length=100, blank=True)
 
-    class Meta:
-        ordering = ['-modified']
-
-    def __str__(self):
-        return(self.name)
     
 class Order(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
@@ -116,8 +120,8 @@ class Order(models.Model):
 class StockTransaction(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    posting_datetime = models.DateTimeField(blank=True)
-    item_id = models.ForeignKey(Item, on_delete=models.CASCADE)
+    posting_datetime = models.DateTimeField(auto_now_add=True)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     qty = models.IntegerField(default=0)
     voucher_no = models.CharField(max_length=100)
 
