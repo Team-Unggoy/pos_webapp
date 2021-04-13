@@ -134,7 +134,7 @@ export default function BuyingList() {
                                 <TableRow onClick={(e) => handleView(e, item)} key={key} hover>
                                     <TableCell>{item.purchase_order_number}</TableCell>
                                     <TableCell>{item.status}</TableCell>
-                                    <TableCell></TableCell>
+                                    {item.is_received == true ? (<TableCell>Yes</TableCell>):(<TableCell>No</TableCell>)}
                                     <TableCell>{getTotalAmount(item)}</TableCell>
                                 </TableRow>
                             ))}

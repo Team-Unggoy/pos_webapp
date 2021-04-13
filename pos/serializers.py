@@ -15,7 +15,7 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
     items = PurchaseOrderItemSerializer(many=True)
     class Meta:
         model = PurchaseOrder
-        fields = ['posting_datetime', 'supplier', 'status', 'items', 'purchase_order_number']
+        fields = ['posting_datetime', 'supplier', 'status', 'items', 'purchase_order_number', 'is_received']
 
     def create(self, validated_data):
         items = validated_data.pop('items')
@@ -28,7 +28,6 @@ class PurchaseOrderSerializerLatest(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrder
         fields = ['posting_datetime', 'supplier', 'status', 'items', 'purchase_order_number']
-        print('na human lugar ko diri')
 
 class PurchaseReceiptItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -44,8 +43,9 @@ class PurchaseReceiptSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         items = validated_data.pop('items')
         purchase_receipt_number = PurchaseReceipt.objects.create(**validated_data)
+        PurchaseOrder.objects.filter(purchase_order_number=validated_data['purchase_order_number']).update(is_received=True)
         for item in items:
-            PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, **item)
+            PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, purchase_order_number=validated_data['purchase_order_number'], **item)
         return purchase_receipt_number
         
 

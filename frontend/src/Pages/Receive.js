@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Receive() {
     const classes = useStyles();
     const [purchaseOrderList, setPurchaseOrderList] = useState([])
-    const [purchaseReceiptForm, setPurchaseReceiptForm] = useState({posting_datetime:new Date().toISOString(),items:[], supplier:'', status:'', invoice_amount:'', purchase_order_number:''})
+    const [purchaseReceiptForm, setPurchaseReceiptForm] = useState({posting_datetime:new Date().toISOString(), items:[], supplier:'', status:'', invoice_amount:0, purchase_order_number:''})
         useEffect(() => {
         formatDate(purchaseReceiptForm.posting_datetime)
         var url = 'http://127.0.0.1:8000/api/purchaseorder-list-submitted/'
@@ -147,15 +147,13 @@ export default function Receive() {
     const getPurchaseOrderItems = (e, value) => {
 
         try{
-            setPurchaseReceiptForm({...purchaseReceiptForm,  purchase_order_number:value.purchase_order_number , supplier:value.supplier, status:'Draft', items:value.items})
+            setPurchaseReceiptForm({...purchaseReceiptForm,  purchase_order_number:value.purchase_order_number , supplier:value.supplier, status:'Draft', items:value.items, invoice_amount:0})
             
         }
         catch{
             setPurchaseReceiptForm({...purchaseReceiptForm ,purchase_order_number:'' ,supplier:'', status:'', items:[], invoice_amount:0})
         }
 
-
-       
     }
 
 

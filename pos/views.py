@@ -82,14 +82,16 @@ def PurchaseOrderDetailView(request, pk):
 
 @api_view(['GET'])
 def submittedPurchaseOrderList(request):
-    purchaseorders = PurchaseOrder.objects.filter(status='Submitted')
+    purchaseorders = PurchaseOrder.objects.filter(status='Submitted', is_received=False)
     serializer = PurchaseOrderSerializer(purchaseorders, many=True)
     return Response(serializer.data)
 
 @api_view(['POST'])
 def PurchaseReceiptCreate(request):
+    if(request.data['supplier'] == ''):
+        request.data['supplier'] = 'None'
+    print(request.data['supplier'], 'tesitng sa ko')
     serializer = PurchaseReceiptSerializer(data=request.data)
-    print(serializer.is_valid())
     if serializer.is_valid():
         serializer.save()
 
