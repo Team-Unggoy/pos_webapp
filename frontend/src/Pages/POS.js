@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {Paper, Grid, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TextField} from '@material-ui/core'
+import {Paper, Grid, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TextField, InputAdornment, FormControl, Select, MenuItem} from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+
 
 const useStyles = makeStyles((theme) => ({
 
@@ -24,6 +26,10 @@ const useStyles = makeStyles((theme) => ({
 function POS() {
   const classes = useStyles();
   const [itemList, setItemList] = useState([])
+  const [search, setSearch] = useState('')
+  const [posObj, setPosObj] = useState([])
+  const [columnToQuery, setColumnToQuery] = useState('name')
+
 
   useEffect(() => {
     fetchItem()
@@ -42,7 +48,10 @@ function POS() {
     console.log('testing')
   }
 
-  console.log(itemList)
+  const handlePOSInsert = (e, item) => {
+    console.log(item)
+  }
+
   return (
 
     <>
@@ -62,7 +71,25 @@ function POS() {
 
     <Grid container spacing={2}>
       <Grid item xs={6}>
-        <Paper className={classes.formTable}>   
+        <Paper className={classes.formTable}>
+          <Grid container spacing={1}>
+        <Grid item xs={6}>
+          <TextField type="search" onChange={(e) => setSearch(e.target.value)} value={search} label='Search' size='small' fullWidth variant='outlined' InputProps={{startAdornment: (
+            <InputAdornment position="start">
+          <SearchIcon />
+          </InputAdornment>)}}/>
+        </Grid>
+            <Grid item xs={6}>
+            <FormControl fullWidth variant='outlined' size='small'>
+            <Select onChange={(e) => {setColumnToQuery(e.target.value)}} fullWidth variant='outlined'>
+                <MenuItem value='name'>Name</MenuItem>
+                <MenuItem value='barcode_number'>Barcode</MenuItem>
+                <MenuItem value='cost'>Buying</MenuItem>
+                <MenuItem value='srp'>Selling</MenuItem>
+            </Select>
+            </FormControl>
+            </Grid>
+        </Grid>
                 <Grid container spacing={0}>
                   <TableContainer>
                         <Table>
@@ -75,8 +102,13 @@ function POS() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {itemList.map((item,key)=>(
-                                  <TableRow hover key={key}>
+                                {itemList.filter((val) => {
+                                  if(search === ''){
+                                    return val
+                                  }else if(val[columnToQuery].toLowerCase().includes(search.toLowerCase())){
+                                    return val}
+                                }).map((item,key)=>(
+                                  <TableRow hover onClick={(e) => handlePOSInsert(e, item)} key={key}>
                                   <TableCell>{item.name}</TableCell>
                                   <TableCell>{item.barcode_number}</TableCell>
                                   <TableCell>{item.inventory}</TableCell>

@@ -109,13 +109,24 @@ class PurchaseReceiptItem(models.Model):
         return(self.name)
     
 
-    
-class Order(models.Model):
+
+class SalesInvoice(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    total = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
-    payment = models.DecimalField(decimal_places=2, max_digits=10)
-    change = models.DecimalField(decimal_places=2, max_digits=10)
+    posting_datetime = models.DateTimeField(blank=True, default=None)
+    costumer = models.CharField(max_length=100, default=None, blank=True)
+    invoice_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+class SalesInvoiceItems(models.Model):
+    creation = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    sales_invoice_number = models.ForeignKey(SalesInvoice, on_delete=models.CASCADE)
+    srp = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    qty = models.IntegerField(default=0)
+    
+
+
+
 
 class StockTransaction(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
