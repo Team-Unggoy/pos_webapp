@@ -121,8 +121,12 @@ class StockTransaction(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(auto_now_add=True)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, related_name='items', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, default=None, blank=False)
+    barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.IntegerField(default=0)
+    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
+    voucher_type = models.CharField(max_length=100)
     voucher_no = models.CharField(max_length=100)
 
     

@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import viewsets
 
 from .models import Item, PurchaseOrder, PurchaseOrderItem
 from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer, PurchaseOrderSerializerLatest
@@ -23,8 +24,8 @@ def apiOverView(request):
 def ItemList(request):
     items = Item.objects.all()
     serializer = ItemSerializer(items, many=True)
-    print(serializer)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def ItemDetail(request, pk):

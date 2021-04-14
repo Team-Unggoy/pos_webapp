@@ -48,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
           backgroundColor: "#e9c46a",
         }
       },
+      
 
 
 }));
@@ -64,6 +65,7 @@ export default function Item() {
     const [columnToQuery, setColumnToQuery] = useState('name')
     const [search, setSearch] = useState('')
     const [markup, setMarkup] = useState(0)
+    const [inventory, setInventory] = useState(0)
     const [margin, setMargin] = useState(0)
     const [selectedRow, setSelectedRow] = useState(0)
 
@@ -154,15 +156,19 @@ export default function Item() {
         setItem({...itemObj, id:null, name:'', barcode_number:'', cost:'', srp:'', supplier:'', enable:true})
     }
 
+    const fetchItemInv = (item) => {
+        console.log(item, 'fetching item inv...')
+    };
+
     
     const viewItemHandler = (e, item) => {
-        console.log(item.supplier)
         clearTimeout(timer)
         if(e.detail === 1){
             timer = setTimeout(() => {
             setSelectedRow(item.id)
             setMargin((((item.srp - (item.cost))/ item.srp)* 100).toFixed(2)+' %')
             setMarkup((((item.srp - (item.cost))/item.cost) * 100).toFixed(2) +' %')
+            setInventory(item.inventory)
             setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, supplier:item.supplier})
             setItemForm('View')
             }, 200)
@@ -171,9 +177,12 @@ export default function Item() {
             setSelectedRow(item.id)
             setMargin((((item.srp - (item.cost))/ item.srp)* 100).toFixed(2)+' %')
             setMarkup((((item.srp - (item.cost))/item.cost) * 100).toFixed(2) +' %')
+            setInventory(item.inventory)
             setItem({...itemObj, id:item.id, name:item.name, barcode_number:item.barcode_number, cost:item.cost, srp:item.srp, enable:item.enable, supplier:item.supplier})
             setItemForm('Edit')
         }
+
+
         
         
     }
@@ -212,6 +221,9 @@ export default function Item() {
         }
 
     }
+
+    console.log(itemList)
+    
     
         return(
             <div className={classes.root}>
@@ -298,6 +310,9 @@ export default function Item() {
                         </Grid>
                         <Grid item xs={6}>
                         <TextField fullWidth id='supplier' onChange={(e) => {itemCreate(e)}} size='small' value={itemObj.supplier} variant='outlined' label='Supplier'></TextField>
+                        </Grid>
+                        <Grid item xs={6}>
+                        <TextField fullWidth read_only size='small' value={inventory} variant='outlined' label='Inventory'></TextField>
                         </Grid>
                         {itemFormStatus === 'Create' ? (
                         <Grid container item style={{paddingTop:20}} spacing={1}>

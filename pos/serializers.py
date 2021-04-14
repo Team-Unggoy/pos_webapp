@@ -1,10 +1,20 @@
 from rest_framework import serializers
+from django.db.models import Sum
 from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, PurchaseReceiptItem, StockTransaction
 
+
 class ItemSerializer(serializers.ModelSerializer):
+    inventory = serializers.SerializerMethodField(method_name='get_inventory')
     class Meta:
         model = Item
-        fields = ['id','name', 'cost', 'srp', 'barcode_number', 'enable', 'supplier', 'modified','creation']
+        fields = ['id','name', 'cost', 'srp', 'barcode_number', 'enable', 'supplier', 'modified','creation', 'inventory']
+
+    def get_inventory(self, obj):
+        total_qty = StockTransaction.objects.filter(item=obj.id).aggregate(inventory=Sum('qty'))
+        return 0 if total_qty['inventory'] == None else total_qty['inventory']
+    
+
+
 
 class PurchaseOrderItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,7 +29,6 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items = validated_data.pop('items')
-        print(items, 'testing sa ko baban')
         purchase_order_number = PurchaseOrder.objects.create(**validated_data)
         for item in items:
             print(item)
@@ -47,8 +56,9 @@ class PurchaseReceiptSerializer(serializers.ModelSerializer):
         purchase_receipt_number = PurchaseReceipt.objects.create(**validated_data)
         PurchaseOrder.objects.filter(purchase_order_number=validated_data['purchase_order_number']).update(is_received=True)
         for item in items:
-            print(item)
+            print(item['item'])
             PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, purchase_order_number=validated_data['purchase_order_number'], **item)
+            StockTransaction.objects.create(voucher_no=purchase_receipt_number, **item)
         return purchase_receipt_number
         
 
