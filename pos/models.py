@@ -60,8 +60,6 @@ class PurchaseOrderItem(models.Model):
     qty = models.PositiveIntegerField(default=1)
     cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
 
-  
-
     def __str__(self):
         return(self.name)
 
@@ -114,30 +112,52 @@ class SalesInvoice(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(blank=True, default=None)
+    sales_invoice_number = models.CharField(primary_key=True, max_length=255, blank=True, null=False, default=None)
+    status = models.CharField(max_length=100, blank=True, default='Draft')
     costumer = models.CharField(max_length=100, default=None, blank=True)
-    invoice_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    sales_invoice = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+        
+    class Meta:
+        ordering = ['-modified']
 
-class SalesInvoiceItems(models.Model):
+    def save(self, *args, **kwargs):
+        if not self.sales_invoice_number:
+            prefix = 'SI-{}'.format(timezone.now().strftime('%y%m%d'))
+            prev_instances = self.__class__.objects.filter(sales_invoice_number__contains=prefix)
+            self.status = 'Submitted'
+            if prev_instances.exists():
+                last_instance_id = prev_instances.first().sales_invoice_number[-4:]
+                self.sales_invoice_number = prefix+'{0:04d}'.format(int(last_instance_id)+1)
+            else:
+                self.sales_invoice_number = prefix+'{0:04d}'.format(1)
+            super(SalesInvoice, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return(self.sales_invoice_number)
+
+class SalesInvoiceItem(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    sales_invoice_number = models.ForeignKey(SalesInvoice, on_delete=models.CASCADE)
-    srp = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    sales_invoice_number = models.ForeignKey(SalesInvoice, related_name='items', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    item = models.ForeignKey(Item, blank=True, default=None, on_delete=models.CASCADE)
+    barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.IntegerField(default=0)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
-
-
-
-
 class StockTransaction(models.Model):
     creation = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     posting_datetime = models.DateTimeField(auto_now_add=True)
     item = models.ForeignKey(Item, related_name='items', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, default=None, blank=False)
-    barcode_number = models.CharField(max_length=13, blank=True)
     qty = models.IntegerField(default=0)
-    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
     voucher_type = models.CharField(max_length=100)
     voucher_no = models.CharField(max_length=100)
+    barcode_number = models.CharField(max_length=13, blank=True, default=None)
+    cost = models.DecimalField(decimal_places=2, max_digits=10, default=0.00)
 
-    
+    def save(self, *args, **kwargs):
+        if self.voucher_type == 'Sales Invoice':
+            self.qty = -(self.qty)
+        super(StockTransaction, self).save(*args, **kwargs)

@@ -225,8 +225,7 @@ class Buying extends React.Component{
             })
         }
 
-        selectItemHandler = (e, item) => {
-            console.log(this.state.buyingForm.items, item, 'testing')
+        itemInsertHandler = (e, item) => {
             const itemIndex = this.state.buyingForm.items.findIndex(
                 (list) => list.item === item.id                
               );
@@ -276,7 +275,6 @@ class Buying extends React.Component{
                     list.push(obj)
                     return list
                 })
-                console.log(list, 'testing new lsit')
                 this.setState(prevState =>({
                 buyingForm:{
                     ...this.state.buyingForm,
@@ -388,7 +386,7 @@ class Buying extends React.Component{
                         }else if(val[this.state.columnToQuery].toLowerCase().includes(this.state.search.toLowerCase())){
                             return val}
                     }).map((item,key) =>(
-                        <TableRow className={classes.tableRow} onClick={(e) => this.selectItemHandler(e, item)} key={item.id} hover>
+                        <TableRow className={classes.tableRow} onClick={(e) => this.itemInsertHandler(e, item)} key={item.id} hover>
                            <TableCell>{item.name}</TableCell>
                            <TableCell>{item.barcode_number}</TableCell>
                            <TableCell>{item.cost}</TableCell>

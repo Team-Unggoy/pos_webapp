@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Sum
-from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, PurchaseReceiptItem, StockTransaction
+from .models import Item, PurchaseOrder, PurchaseOrderItem, PurchaseReceipt, PurchaseReceiptItem, SalesInvoice, SalesInvoiceItem, StockTransaction
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -56,10 +56,33 @@ class PurchaseReceiptSerializer(serializers.ModelSerializer):
         purchase_receipt_number = PurchaseReceipt.objects.create(**validated_data)
         PurchaseOrder.objects.filter(purchase_order_number=validated_data['purchase_order_number']).update(is_received=True)
         for item in items:
-            print(item['item'])
             PurchaseReceiptItem.objects.create(purchase_receipt_number=purchase_receipt_number, purchase_order_number=validated_data['purchase_order_number'], **item)
-            StockTransaction.objects.create(voucher_no=purchase_receipt_number, **item)
+            StockTransaction.objects.create(voucher_no=purchase_receipt_number, voucher_type='Purchase Receipt', **item)
         return purchase_receipt_number
+
+class SalesInvoiceItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SalesInvoiceItem
+        fields = ['id', 'name', 'barcode_number', 'qty', 'cost', 'item']
+
+class SalesInvoiceSerializer(serializers.ModelSerializer):
+    items = SalesInvoiceItemSerializer(many=True)
+    class Meta:
+        model = SalesInvoice
+        fields = ['posting_datetime', 'costumer', 'items', 'sales_invoice', 'sales_invoice_number']
+
+    def create(self, validated_data):
+        items = validated_data.pop('items')
+        sales_invoice_number = SalesInvoice.objects.create(**validated_data)
+        for item in items:
+            SalesInvoiceItem.objects.create(sales_invoice_number=sales_invoice_number, **item)
+            StockTransaction.objects.create(voucher_no=sales_invoice_number, voucher_type='Sales Invoice', **item)
+        return sales_invoice_number
+
+
+
+
+
         
 
 

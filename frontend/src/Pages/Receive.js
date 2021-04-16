@@ -93,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Receive() {
     const classes = useStyles();
     const [purchaseOrderList, setPurchaseOrderList] = useState([])
-    const [purchaseReceiptForm, setPurchaseReceiptForm] = useState({posting_datetime:new Date().toISOString(), items:[], supplier:'', status:'', invoice_amount:0, purchase_order_number:''})
+    const [purchaseReceiptForm, setPurchaseReceiptForm] = useState({posting_datetime:new Date().toISOString(), items:[], supplier:'', status:'', invoice_amount:0, purchase_order_number:'', type:'Purchase Receipt'})
         useEffect(() => {
         formatDate(purchaseReceiptForm.posting_datetime)
         var url = 'http://127.0.0.1:8000/api/purchaseorder-list-submitted/'

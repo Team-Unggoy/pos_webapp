@@ -19,4 +19,6 @@ urlpatterns = [
 
     path('purchasereceipt-create/', views.PurchaseReceiptCreate, name='purchasereceipt-create'),
 
+    path('salesinvoice-create/', views.SalesInvoiceCreate, name='salesinvoice-create'),
+
 ]

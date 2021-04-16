@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 
 from .models import Item, PurchaseOrder, PurchaseOrderItem
-from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer, PurchaseOrderSerializerLatest
+from .serializers import ItemSerializer, PurchaseOrderSerializer, PurchaseReceiptSerializer, PurchaseOrderSerializerLatest, SalesInvoiceSerializer
 
 # Create your views here.
 
@@ -90,7 +90,6 @@ def submittedPurchaseOrderList(request):
 def PurchaseReceiptCreate(request):
     if(request.data['supplier'] == ''):
         request.data['supplier'] = 'None'
-    print(request.data['supplier'], 'tesitng sa ko')
     serializer = PurchaseReceiptSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -110,4 +109,11 @@ def ItemsUnderSupplier(request, supplier):
     serializer = ItemSerializer(items, many=True)
     print(serializer)
     return Response(serializer.data)
-    
+
+@api_view(['POST'])
+def SalesInvoiceCreate(request):
+    serializer = SalesInvoiceSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        
+    return Response(serializer.data)
